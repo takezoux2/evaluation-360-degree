@@ -1,0 +1,186 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id    Int    @id @default(autoincrement())
+  email String @unique
+  name  String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  password Password?
+
+  SnsLink             SnsLink?
+  roles               Role[]
+  Job                 Job          @relation(fields: [jobId], references: [id])
+  jobId               Int
+  evaluations         Evaluation[] @relation("Evaluators")
+  receivedEvaluations Evaluation[] @relation("Evaluatees")
+}
+
+model Password {
+  id   Int    @id @default(autoincrement())
+  hash String
+
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId Int  @unique
+}
+
+model Role {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users User[]
+}
+
+model Sns {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  credential String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  snsLinks SnsLink[]
+}
+
+model SnsLink {
+  id Int @id @default(autoincrement())
+
+  snsUserId String @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId Int  @unique
+  Sns    Sns  @relation(fields: [snsId], references: [id])
+  snsId  Int  @unique
+}
+
+model Job {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users       User[]
+  answerItems AnswerItem[]
+}
+
+model Term {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  explanationMarkdown String @db.Text
+
+  startAt DateTime
+  endAt   DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  askSections AskSection[]
+  evalustions Evaluation[]
+}
+
+model AskSection {
+  id    Int    @id @default(autoincrement())
+  label String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  askItems AskItem[]
+  term     Term      @relation(fields: [termId], references: [id])
+  termId   Int
+
+  answerSelectionSet   AnswerSelectionSet? @relation(fields: [answerSelectionSetId], references: [id])
+  answerSelectionSetId Int?
+}
+
+model AnswerSelectionSet {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  answerSelections AnswerSelection[]
+  askSections      AskSection[]
+}
+
+model AnswerSelection {
+  id                   Int                 @id @default(autoincrement())
+  label                String
+  value                Int
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+  answerSelectionSet   AnswerSelectionSet? @relation(fields: [answerSelectionSetId], references: [id])
+  answerSelectionSetId Int?
+}
+
+model AskItem {
+  id      Int    @id @default(autoincrement())
+  askText String
+
+  ordering Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  answerItems  AnswerItem[]
+  askSection   AskSection   @relation(fields: [askSectionId], references: [id])
+  askSectionId Int
+}
+
+model Evaluation {
+  id Int @id @default(autoincrement())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  term        Term @relation(fields: [termId], references: [id])
+  termId      Int
+  evaluator   User @relation("Evaluators", fields: [evaluatorId], references: [id])
+  evaluatorId Int
+  evaluatee   User @relation("Evaluatees", fields: [evaluateeId], references: [id])
+  evaluateeId Int
+
+  answerItems AnswerItem[]
+
+  @@unique([termId, evaluatorId, evaluateeId])
+}
+
+model AnswerItem {
+  id           Int     @id @default(autoincrement())
+  value        Int
+  noConfidence Boolean
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  askItem   AskItem @relation(fields: [askItemId], references: [id])
+  askItemId Int
+
+  targetJobs   Job[]
+  evaluation   Evaluation? @relation(fields: [evaluationId], references: [id])
+  evaluationId Int?
+
+  @@unique([askItemId, evaluationId])
+}
+
+// drop database evaluation360degree;
+// create database evaluation360degree;
