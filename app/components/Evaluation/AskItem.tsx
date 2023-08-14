@@ -1,32 +1,89 @@
-import { AnswerSelection, AnswerSelectionSet, AskItem } from "@prisma/client"
-import { useState } from "react"
-import { FullAnswerSelectionSet, FullAskItem } from "~/models/term.server"
+import { AnswerSelection, AnswerSelectionSet, AskItem } from "@prisma/client";
+import { ActionArgs } from "@remix-run/node";
+import {
+  Form,
+  isRouteErrorResponse,
+  useFetcher,
+  useRouteError,
+  useSubmit,
+} from "@remix-run/react";
+import { useState } from "react";
+import {
+  FullAnswerSelectionSet,
+  FullAskItem,
+} from "~/models/evaluation.server";
 
 type Args = {
-  askItem: FullAskItem, 
-  answerSelectionSet: FullAnswerSelectionSet
-}
+  askItem: FullAskItem;
+  answerSelectionSet: FullAnswerSelectionSet;
+  evaluationId: number;
+};
 
-export const AskItemComponent = ({askItem, answerSelectionSet}: Args) => {
+export const AskItemComponent = ({
+  askItem,
+  answerSelectionSet,
+  evaluationId,
+}: Args) => {
   const [selected, setSelected] = useState(
-    askItem.answerItem ? askItem.answerItem.value : -1
-  )
-  const selections = answerSelectionSet?.answerSelections.map((selection, index) => {
-    return <div 
-        className={"w-full rounded-sm border border-gray-400 flex items-center py-2 px-6 text-xl" + (selected === index ? " bg-blue-500" : "") }
-        onClick={() => {
-          askItem.answerItem = { value: index, noConfidence: askItem.answerItem?.noConfidence || false }
-          setSelected(index)
-        }}>
-         {selection.value}
-      </div>
-  })
+    askItem.answerItem
+      ? answerSelectionSet?.answerSelections.findIndex((s) => {
+          return s.value === askItem.answerItem?.value;
+        })
+      : -1
+  );
+  const [submitted, setSubmitted] = useState(false);
+  const fetcher = useFetcher();
+
+  const selections = answerSelectionSet?.answerSelections.map(
+    (selection, index) => {
+      return (
+        <div className="flex-auto">
+          <button
+            className={
+              "w-full items-center rounded-sm border border-gray-400 px-6 py-2 text-xl" +
+              (selected === index ? " bg-blue-500" : "")
+            }
+            onClick={() => {
+              console.log("On click");
+              askItem.answerItem = {
+                value: selection.value,
+                noConfidence: askItem.answerItem?.noConfidence || false,
+              };
+              setSelected(index);
+              setSubmitted(true);
+              const formData = new FormData();
+              formData.append("askItemId", askItem.id.toString());
+              formData.append("value", selection.value.toString());
+              formData.append("evaluationId", evaluationId.toString());
+              fetcher.submit(formData, {
+                method: "post",
+                action: "/evaluation_post/update_answer",
+              });
+            }}
+          >
+            {selection.value}
+          </button>
+        </div>
+      );
+    }
+  );
 
   return (
     <div>
-      <div>{askItem.askText}</div>
-  <div className="items-center w-full text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg sm:flex dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-      {selections}
-  </div>
-  </div>)
-}
+      <div className="flex flex-row">
+        <div className="basis-3/4">{askItem.askText}</div>
+        <div className="basis-1/4 text-right">
+          {submitted &&
+            (fetcher.state === "loading" ? (
+              <div>Saving...</div>
+            ) : (
+              <div className="text-green-500">✅Saved</div>
+            ))}
+        </div>
+      </div>
+      <div className="flex w-full flex-row items-center rounded-lg border border-gray-200 bg-white text-sm font-medium text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:flex">
+        {selections}
+      </div>
+    </div>
+  );
+};
