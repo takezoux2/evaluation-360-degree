@@ -1,5 +1,5 @@
 import { json, LoaderArgs, type V2_MetaFunction } from "@remix-run/node";
-import { Link, Outlet, useLoaderData } from "@remix-run/react";
+import { Form, Link, Outlet, useLoaderData } from "@remix-run/react";
 import { useState } from "react";
 import { EvaluationComponent } from "~/components/Evaluation/EvaluationComponent";
 import { TermList } from "~/components/Term/TermList";
@@ -22,10 +22,10 @@ export const loader = async ({ params, request }: LoaderArgs) => {
         })
       : [];
 
-  return json({ terms, evaluations });
+  return json({ terms, evaluations, user });
 };
 export default function Index() {
-  const { terms, evaluations } = useLoaderData<typeof loader>();
+  const { terms, evaluations, user } = useLoaderData<typeof loader>();
   const [evaluation, setEvaluation] = useState<ListEvaluation | null>(null);
 
   const evaluationComponent = evaluation ? (
@@ -47,9 +47,34 @@ export default function Index() {
     );
 
   return (
-    <main className="items-left flex min-h-screen flex-row bg-white p-3">
-      <div className="w-1/4">{termComponent}</div>
-      <div className="w-3/4 p-5">{evaluationComponent}</div>
-    </main>
+    <>
+      <header>
+        <div className="flex flex-row items-center justify-between p-1">
+          <div className="basis-4/6">
+            <h2 className="px-2 text-2xl">360度評価システム</h2>
+          </div>
+          <div className="basis-1/6 p-2 text-right">
+            {user.name}としてログイン中
+          </div>
+
+          <div className="basis-1/6 text-right">
+            <Form reloadDocument action="/logout" method="post">
+              <button
+                type="submit"
+                className=" rounded-lg bg-blue-500 p-2 text-white"
+              >
+                ログアウト
+              </button>
+            </Form>
+          </div>
+        </div>
+      </header>
+      <main className="min-h-screen bg-white p-3">
+        <div className="items-left flex flex-row">
+          <div className="w-1/4">{termComponent}</div>
+          <div className="w-3/4 p-5">{evaluationComponent}</div>
+        </div>
+      </main>
+    </>
   );
 }

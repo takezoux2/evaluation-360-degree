@@ -5,5 +5,5 @@ import { requireAdminUser, requireUser } from "~/session.server";
 export const meta: V2_MetaFunction = () => [{ title: "Remix Notes" }];
 
 export default function Admin() {
-  return <div>root</div>;
+  return <div>360度評価システムです。</div>;
 }

@@ -74,6 +74,11 @@ export async function getTermById(id: Term["id"]) {
       askSections: {
         include: {
           askItems: true,
+          answerSelectionSet: {
+            include: {
+              answerSelections: true,
+            },
+          },
         },
       },
     },

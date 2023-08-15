@@ -107,8 +107,8 @@ model AskSection {
   term     Term      @relation(fields: [termId], references: [id])
   termId   Int
 
-  answerSelectionSet   AnswerSelectionSet? @relation(fields: [answerSelectionSetId], references: [id])
-  answerSelectionSetId Int?
+  answerSelectionSet   AnswerSelectionSet @relation(fields: [answerSelectionSetId], references: [id])
+  answerSelectionSetId Int
 }
 
 model AnswerSelectionSet {

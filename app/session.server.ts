@@ -75,7 +75,7 @@ export async function createUserSession({
   redirectTo,
 }: {
   request: Request;
-  userId: string;
+  userId: number;
   remember: boolean;
   redirectTo: string;
 }) {
