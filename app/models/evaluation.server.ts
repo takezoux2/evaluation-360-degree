@@ -192,3 +192,136 @@ export async function updateAnswerItem(args: {
   });
   return r;
 }
+
+export async function upsertEvaluations(
+  termId: number,
+  params: {
+    evaluator: string;
+    evaluatee: string;
+  }[],
+  autoCreateUser: boolean
+) {
+  const term = await prisma.term.findUnique({
+    where: { id: termId },
+  });
+
+  invariant(term, `Term not found: ${termId}`);
+
+  params.forEach((p) => {
+    p.evaluator = p.evaluator.trim();
+    p.evaluatee = p.evaluatee.trim();
+  });
+
+  const userSet = Array.from(
+    new Set([
+      ...params.map((p) => p.evaluator),
+      ...params.map((p) => p.evaluatee),
+    ])
+  );
+  const users = await prisma.user.findMany({
+    where: {
+      OR: [{ email: { in: userSet } }, { name: { in: userSet } }],
+    },
+  });
+  const userMap = new Map([
+    ...(users.map((user) => [user.email, user.id]) as [string, number][]),
+    ...(users.map((user) => [user.name, user.id]) as [string, number][]),
+  ]);
+
+  const defaultJobId =
+    (
+      await prisma.job.findUnique({
+        where: { name: "Engineer" },
+      })
+    )?.id ?? 1;
+
+  const events = [] as string[];
+  const createNewUser = (maybeEmail: string) => {
+    if (maybeEmail.includes("@")) {
+      console.log("Create new user: " + maybeEmail);
+      events.push("Create new user: " + maybeEmail);
+      return prisma.user.create({
+        data: {
+          email: maybeEmail,
+          name: maybeEmail.substring(0, maybeEmail.indexOf("@")),
+          jobId: defaultJobId,
+        },
+      });
+    }
+  };
+
+  const errors = [] as { row: number; message: string }[];
+  let rowIndex = 1;
+  for (const param of params) {
+    rowIndex += 1;
+    const evaluatorId = userMap.get(param.evaluator);
+    if (!evaluatorId) {
+      const user = autoCreateUser ? await createNewUser(param.evaluator) : null;
+      if (user) {
+        userMap.set(param.evaluator, user.id);
+      } else {
+        errors.push({
+          row: rowIndex,
+          message: `Evaluator not found: ${param.evaluator}`,
+        });
+        continue;
+      }
+    }
+
+    const evaluateeId = userMap.get(param.evaluatee);
+    if (!evaluateeId) {
+      const user = autoCreateUser ? await createNewUser(param.evaluatee) : null;
+      if (user) {
+        userMap.set(param.evaluatee, user.id);
+      } else {
+        errors.push({
+          row: rowIndex,
+          message: `Evaluatee not found: ${param.evaluatee}`,
+        });
+        continue;
+      }
+    }
+
+    const p = {
+      termId,
+      evaluatorId: userMap.get(param.evaluator) ?? 0,
+      evaluateeId: userMap.get(param.evaluatee) ?? 0,
+    };
+    invariant(
+      p.evaluateeId !== p.evaluatorId,
+      `Evaluator and evaluatee are the same: ${param.evaluatee}`
+    );
+    await prisma.evaluation.upsert({
+      where: {
+        termId_evaluatorId_evaluateeId: p,
+      },
+      update: {},
+      create: p,
+    });
+  }
+  return {
+    affectedRows: params.length - errors.length,
+    errors,
+    events,
+  };
+}
+
+export async function getAllEvaluationsInTerm(termId: Term["id"]) {
+  return prisma.evaluation.findMany({
+    where: {
+      termId,
+    },
+    include: {
+      answerItems: true,
+      evaluatee: {
+        include: {
+          Job: true,
+        },
+      },
+      evaluator: true,
+    },
+    orderBy: {
+      evaluateeId: "asc",
+    },
+  });
+}

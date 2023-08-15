@@ -1,7 +1,7 @@
 import { createCookieSessionStorage, redirect } from "@remix-run/node";
 import invariant from "tiny-invariant";
 
-import type { User } from "~/models/user.server";
+import type { LoginUser } from "~/models/user.server";
 import { getUserById } from "~/models/user.server";
 
 invariant(process.env.SESSION_SECRET, "SESSION_SECRET must be set");
@@ -26,7 +26,7 @@ export async function getSession(request: Request) {
 
 export async function getUserId(
   request: Request
-): Promise<User["id"] | undefined> {
+): Promise<LoginUser["id"] | undefined> {
   const session = await getSession(request);
   const userId = session.get(USER_SESSION_KEY);
   return userId;
@@ -61,6 +61,11 @@ export async function requireUser(request: Request) {
   if (user) return user;
 
   throw await logout(request);
+}
+export async function requireAdminUser(request: Request) {
+  const user = await requireUser(request);
+  if (!user.isAdmin) throw new Error("Admin role required");
+  return user;
 }
 
 export async function createUserSession({
