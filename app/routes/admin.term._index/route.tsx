@@ -1,6 +1,7 @@
 import { json, LoaderArgs, type V2_MetaFunction } from "@remix-run/node";
 import { Link, Outlet, useLoaderData } from "@remix-run/react";
 import { getLatestTerms } from "~/models/term.server";
+import { toHumanFriendly } from "~/time_util";
 
 export const meta: V2_MetaFunction = () => [{ title: "Remix Notes" }];
 
@@ -31,8 +32,12 @@ export default function TermList() {
                 </Link>
               </td>
               <td className="border border-gray-200">{t.name}</td>
-              <td className="border border-gray-200">{t.startAt}</td>
-              <td className="border border-gray-200">{t.endAt}</td>
+              <td className="border border-gray-200">
+                {toHumanFriendly(t.startAt)}
+              </td>
+              <td className="border border-gray-200">
+                {toHumanFriendly(t.endAt)}
+              </td>
             </tr>
           ))}
         </tbody>

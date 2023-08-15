@@ -119,7 +119,7 @@ export default function EditTerm() {
         </label>
         <textarea
           name="sectionYaml"
-          className="h-64 w-full rounded-sm border border-black bg-cyan-50 p-1"
+          className="h-96 w-full rounded-sm border border-black bg-cyan-50 p-1"
           defaultValue={sectionYaml}
         ></textarea>
       </div>

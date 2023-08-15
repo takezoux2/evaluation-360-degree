@@ -8,6 +8,6 @@ export const handle = {
   breadcrumb: () => <Link to="/admin/term">評価期間一覧</Link>,
 };
 
-export default function TermList() {
+export default function Term() {
   return <Outlet></Outlet>;
 }
