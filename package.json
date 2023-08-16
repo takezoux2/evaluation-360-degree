@@ -25,6 +25,7 @@
     "/public/build"
   ],
   "dependencies": {
+    "@monaco-editor/react": "^4.5.1",
     "@prisma/client": "^4.16.1",
     "@remix-run/css-bundle": "^1.19.1",
     "@remix-run/node": "^1.19.1",

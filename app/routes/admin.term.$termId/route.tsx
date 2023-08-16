@@ -10,6 +10,8 @@ import invariant from "tiny-invariant";
 import { getLatestTerms, getTermById } from "~/models/term.server";
 import { toInputDateTimeLocal } from "~/time_util";
 import { upsertAskSelectionSet } from "~/models/term_update.server";
+import Editor from "@monaco-editor/react";
+import { useState } from "react";
 
 export const meta: V2_MetaFunction = () => [{ title: "Remix Notes" }];
 
@@ -74,6 +76,17 @@ export const action = async ({ request }: ActionArgs) => {
 export default function EditTerm() {
   const { term, sectionYaml } = useLoaderData<typeof loader>();
 
+  const [sectionYamlValue, setSectionYaml] = useState<string>("");
+
+  const errors = [] as string[];
+  try {
+    yaml.parse(sectionYamlValue, { prettyErrors: true });
+  } catch (e: any) {
+    if (e instanceof yaml.YAMLParseError) {
+      errors.push(e.message);
+    }
+  }
+
   return (
     <Form method="post">
       <input type="hidden" name="termId" value={term.id} />
@@ -117,13 +130,35 @@ export default function EditTerm() {
         <label htmlFor="sectionYaml" className="block text-sm">
           セクション/設問/選択肢
         </label>
-        <textarea
+        <input type="hidden" value={sectionYamlValue} name="sectionYaml" />
+        {/* <textarea
           name="sectionYaml"
           className="h-96 w-full rounded-sm border border-black bg-cyan-50 p-1"
           defaultValue={sectionYaml}
-        ></textarea>
+        ></textarea> */}
+        <Editor
+          className="h-96 w-full rounded-sm border border-black "
+          defaultValue={sectionYaml}
+          language="yaml"
+          onChange={(value) => {
+            setSectionYaml(value ?? "");
+          }}
+        />
       </div>
-      <button type="submit" className=" rounded-lg bg-green-500 px-4 py-2">
+      {errors.length > 0 && (
+        <div className="p-1">
+          {errors.map((e, i) => (
+            <div className=" text-red-500" key={i}>
+              {e}
+            </div>
+          ))}
+        </div>
+      )}
+      <button
+        disabled={errors.length > 0}
+        type="submit"
+        className=" rounded-lg bg-green-500 px-4 py-2 disabled:bg-gray-400"
+      >
         更新
       </button>
     </Form>
