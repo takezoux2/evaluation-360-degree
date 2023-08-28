@@ -3,7 +3,9 @@ import { SerializeFrom } from "@remix-run/node";
 import { prisma } from "~/db.server";
 import { StripReturnType, UnwrapPromise } from "./type_util";
 import * as yaml from "yaml";
-type SectionType = {
+
+import { z } from "zod";
+export type SectionType = {
   id?: string;
   label: string;
   questions: string[];
@@ -16,6 +18,24 @@ type SectionType = {
     }[];
   };
 };
+// Use https://transform.tools/typescript-to-zod
+export const sectionTypeSchema = z.object({
+  id: z.string().optional(),
+  label: z.string(),
+  questions: z.array(z.string()),
+  selectionSet: z.object({
+    id: z.string().optional(),
+    name: z.string().optional(),
+    selections: z
+      .array(
+        z.object({
+          label: z.string(),
+          value: z.string(),
+        })
+      )
+      .optional(),
+  }),
+});
 
 export const upsertAskSelectionSet = async (
   termId: number,
