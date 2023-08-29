@@ -23,13 +23,17 @@ export const getGoogleUserDataFromAuthCode = async (
     auth: oauth2Client,
   });
   const email = userInfo.data.email ?? "";
-  const isAvailableDomain = AVAILABLE_DOMAINS.some((domain) =>
-    userInfo.data.email?.endsWith("@" + domain)
-  );
+  const isAvailableDomain =
+    AVAILABLE_DOMAINS.length === 0 ||
+    AVAILABLE_DOMAINS.some((domain) =>
+      userInfo.data.email?.endsWith("@" + domain)
+    );
   if (!isAvailableDomain) {
+    // get domain from email
+    const domain = email.split("@")[1];
     return {
       isLogin: false,
-      message: "Not available domain",
+      message: `無効なドメインです:${domain}`,
     };
   }
   const user = await prisma.user.findUnique({
@@ -40,7 +44,7 @@ export const getGoogleUserDataFromAuthCode = async (
   if (!user) {
     return {
       isLogin: false,
-      message: "Not registered user",
+      message: `${email}のユーザーは存在しません。`,
     };
   }
   return {

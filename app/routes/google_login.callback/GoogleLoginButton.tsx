@@ -17,24 +17,11 @@ import { safeRedirect, validateEmail } from "~/utils";
 
 export const meta: V2_MetaFunction = () => [{ title: "SnsLogin" }];
 
-export const loader = ({ request }: LoaderArgs) => {
-  return {
-    ENV: {
-      GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID ?? "",
-    },
-  };
-};
-
-export default function SnsLoginPage() {
-  const data = useLoaderData<typeof loader>();
+export default function GoogleLoginButton({ clientId }: { clientId: string }) {
   return (
-    <div className="flex min-h-full flex-col justify-center">
-      <div className="mx-auto w-full max-w-md px-8">
-        <GoogleOAuthProvider clientId={data.ENV.GOOGLE_CLIENT_ID}>
-          <LoginButton />
-        </GoogleOAuthProvider>
-      </div>
-    </div>
+    <GoogleOAuthProvider clientId={clientId}>
+      <LoginButton />
+    </GoogleOAuthProvider>
   );
 }
 
@@ -44,10 +31,17 @@ const LoginButton = () => {
     onSuccess: (codeResponse) => {
       const formData = new FormData();
       formData.set("authCode", codeResponse.code);
-      submit(formData, { method: "post", action: "/sns_login_authcode" });
+      submit(formData, { method: "post", action: "/google_login/callback" });
     },
     flow: "auth-code",
   });
 
-  return <button onClick={snsLogin}>SNSLogin</button>;
+  return (
+    <button
+      className="rounded-full bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
+      onClick={snsLogin}
+    >
+      Google Login
+    </button>
+  );
 };

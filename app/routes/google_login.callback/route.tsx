@@ -1,6 +1,7 @@
 import type { ActionArgs, LoaderArgs, V2_MetaFunction } from "@remix-run/node";
-import { getGoogleUserDataFromAuthCode } from "./sns_login.server";
+import { getGoogleUserDataFromAuthCode } from "./google_login.server";
 import { createUserSession } from "~/session.server";
+import { useActionData } from "@remix-run/react";
 
 export const meta: V2_MetaFunction = () => [{ title: "SnsLogin" }];
 
@@ -23,8 +24,15 @@ export const action = async ({ request }: ActionArgs) => {
   }
 };
 
-export default function SnsLoginPage() {
+export default async function SnsLoginPage() {
+  const data = await useActionData<typeof action>();
   return (
-    <div className="flex min-h-full flex-col justify-center">Fail to login</div>
+    <div className="flex min-h-full flex-col justify-center">
+      <div>
+        {data !== undefined && "message" in data
+          ? data.message
+          : "Unknown error"}
+      </div>
+    </div>
   );
 }
