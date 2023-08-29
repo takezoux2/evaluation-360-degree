@@ -59,6 +59,7 @@ export const AskItemComponent = ({
               fetcher.submit(formData, {
                 method: "post",
                 action: "/evaluation_post/update_answer",
+                replace: false,
               });
             }}
           >

@@ -13,9 +13,9 @@ export const loader = async ({ params, request }: LoaderArgs) => {
   const user = await requireUser(request);
 
   const terms = await getTerms();
-
+  console.log(request.url);
   const evaluations =
-    terms.length > 0
+    terms.length > 0 && !params._data
       ? await getListEvaluations({
           termIds: terms.map((t) => t.id),
           userId: user.id,
@@ -50,11 +50,11 @@ export default function Index() {
     <>
       <header>
         <div className="flex flex-row items-center justify-between p-1">
-          <div className="basis-4/6">
+          <div className="basis-3/6">
             <h2 className="px-2 text-2xl">360度評価システム</h2>
           </div>
-          <div className="basis-1/6 p-2 text-right">
-            {user.name}としてログイン中
+          <div className="basis-2/6 p-2 text-right">
+            {user.name}:{user.Job.name}
           </div>
 
           <div className="basis-1/6 text-right">

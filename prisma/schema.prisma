@@ -77,7 +77,7 @@ model Job {
   updatedAt DateTime @updatedAt
 
   users       User[]
-  answerItems AnswerItem[]
+  askItems AskItem[]
 }
 
 model Term {
@@ -141,6 +141,7 @@ model AskItem {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  targetJobs   Job[]
   answerItems  AnswerItem[]
   askSection   AskSection   @relation(fields: [askSectionId], references: [id])
   askSectionId Int
@@ -175,7 +176,6 @@ model AnswerItem {
   askItem   AskItem @relation(fields: [askItemId], references: [id])
   askItemId Int
 
-  targetJobs   Job[]
   evaluation   Evaluation? @relation(fields: [evaluationId], references: [id])
   evaluationId Int?
 

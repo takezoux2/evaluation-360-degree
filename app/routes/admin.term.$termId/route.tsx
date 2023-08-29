@@ -29,7 +29,14 @@ export const loader = async ({ request, params }: LoaderArgs) => {
         id: sec.id,
         label: sec.label,
         questions: sec.askItems.map((item) => {
-          return item.askText;
+          if (item.targetJobs.length === 0) {
+            return item.askText;
+          } else {
+            return {
+              label: item.askText,
+              jobs: item.targetJobs.map((job) => job.name),
+            };
+          }
         }),
         selectionSet: {
           id: sec.answerSelectionSetId,

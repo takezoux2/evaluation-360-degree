@@ -73,7 +73,11 @@ export async function getTermById(id: Term["id"]) {
     include: {
       askSections: {
         include: {
-          askItems: true,
+          askItems: {
+            include: {
+              targetJobs: true,
+            },
+          },
           answerSelectionSet: {
             include: {
               answerSelections: true,

@@ -11,6 +11,7 @@ export async function getUserById(id: User["id"]) {
     where: { id },
     include: {
       roles: true,
+      Job: true,
     },
   });
   if (user) {

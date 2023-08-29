@@ -8,7 +8,13 @@ import { z } from "zod";
 export type SectionType = {
   id?: string;
   label: string;
-  questions: string[];
+  questions: (
+    | string
+    | {
+        label: string;
+        jobs: string[];
+      }
+  )[];
   selectionSet: {
     id?: string;
     name?: string;
@@ -22,7 +28,15 @@ export type SectionType = {
 export const sectionTypeSchema = z.object({
   id: z.string().optional(),
   label: z.string(),
-  questions: z.array(z.string()),
+  questions: z.array(
+    z.union([
+      z.string(),
+      z.object({
+        label: z.string(),
+        jobs: z.array(z.string()),
+      }),
+    ])
+  ),
   selectionSet: z.object({
     id: z.string().optional(),
     name: z.string().optional(),
@@ -137,13 +151,26 @@ export const upsertAskSelectionSet = async (
     ) {
       const askText = section.questions[i];
       const ask = currentAsks[i];
+      const jobs =
+        typeof askText === "string"
+          ? []
+          : await prisma.job.findMany({
+              where: {
+                name: {
+                  in: askText.jobs,
+                },
+              },
+            });
       await prisma.askItem.update({
         where: {
           id: ask.id,
         },
         data: {
-          askText: askText,
+          askText: typeof askText === "string" ? askText : askText.label,
           ordering: i + 1,
+          targetJobs: {
+            set: jobs.map((j) => ({ id: j.id })),
+          },
         },
       });
     }
@@ -169,11 +196,24 @@ export const upsertAskSelectionSet = async (
     } else if (currentAsks.length < section.questions.length) {
       for (let i = currentAsks.length; i < section.questions.length; i++) {
         const askText = section.questions[i];
+        const jobs =
+          typeof askText === "string"
+            ? []
+            : await prisma.job.findMany({
+                where: {
+                  name: {
+                    in: askText.jobs,
+                  },
+                },
+              });
         await prisma.askItem.create({
           data: {
             askSectionId: sectionRecord.id,
-            askText: askText,
+            askText: typeof askText === "string" ? askText : askText.label,
             ordering: i + 1,
+            targetJobs: {
+              connect: jobs.map((j) => ({ id: j.id })),
+            },
           },
         });
       }

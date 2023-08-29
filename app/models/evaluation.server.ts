@@ -35,6 +35,11 @@ export async function getListEvaluations(args: {
   termIds: Term["id"][];
   userId: User["id"];
 }) {
+  console.log("Get list evaluations", args.termIds, args.userId);
+  const evaluatee = await prisma.user.findUnique({
+    where: { id: args.userId },
+  });
+  invariant(evaluatee, `Evaluatee not found: ${args.userId}`);
   const evaluations = await prisma.evaluation
     .findMany({
       where: {
@@ -48,7 +53,11 @@ export async function getListEvaluations(args: {
           include: {
             askSections: {
               include: {
-                askItems: true,
+                askItems: {
+                  include: {
+                    targetJobs: true,
+                  },
+                },
                 answerSelectionSet: {
                   include: {
                     answerSelections: true,
@@ -66,6 +75,12 @@ export async function getListEvaluations(args: {
           evaluationId: evaluation.id,
         });
         evaluation.term.askSections.forEach((section) => {
+          section.askItems = section.askItems.filter((item) => {
+            return (
+              item.targetJobs.length === 0 ||
+              item.targetJobs.some((job) => job.id === evaluatee.jobId)
+            );
+          });
           section.askItems.forEach((item) => {
             const answerItem = evaluation.answerItems.find((answerItem) => {
               return answerItem.askItemId === item.id;
@@ -101,13 +116,21 @@ export async function getEvaluation(args: {
   evaluatorId: User["id"];
   evaluateeId: User["id"];
 }) {
+  const evaluatee = await prisma.user.findUnique({
+    where: { id: args.evaluateeId },
+  });
+  invariant(evaluatee, `Evaluatee not found: ${args.evaluateeId}`);
   console.log("Get term by id", args.termId);
   const term = await prisma.term.findUnique({
     where: { id: args.termId },
     include: {
       askSections: {
         include: {
-          askItems: {},
+          askItems: {
+            include: {
+              targetJobs: true,
+            },
+          },
           answerSelectionSet: {
             include: {
               answerSelections: true,
@@ -138,6 +161,13 @@ export async function getEvaluation(args: {
   );
 
   term.askSections.forEach((section) => {
+    section.askItems = section.askItems.filter((item) => {
+      return (
+        item.targetJobs.length === 0 ||
+        item.targetJobs.some((job) => job.id === evaluatee.jobId)
+      );
+    });
+
     section.askItems.forEach((item) => {
       const answerItem = evaluation.answerItems.find((answerItem) => {
         return answerItem.askItemId === item.id;
