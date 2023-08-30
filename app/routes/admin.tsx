@@ -21,30 +21,13 @@ export const handle = {
 export default function Index() {
   const { user } = useLoaderData<typeof loader>();
   const matches = useMatches();
-  const breadcrumbs = matches
-    .filter((m) => m.handle?.breadcrumb)
-    .map((m, index) => {
-      return (
-        <>
-          <li
-            className="inline-flex items-center px-2 text-blue-700"
-            key={index + "_bc"}
-          >
-            {m.handle?.breadcrumb(m)}
-          </li>
-          <li key={index + "_sep"}>/</li>
-        </>
-      );
-    });
   return (
     <>
       <header>
         <div className="flex">
           <div className="w-3/4">
             <nav className="flex p-3" aria-label="Breadcrumb">
-              <ol className="inline-flex items-center space-x-1 ">
-                {breadcrumbs}
-              </ol>
+              管理ページ
             </nav>
           </div>
           <div className="w-1/4 p-3 text-right">{user.name}</div>

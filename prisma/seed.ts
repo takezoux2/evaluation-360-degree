@@ -28,13 +28,43 @@ async function seed() {
 
   const hashedPassword = await bcrypt.hash("racheliscool", 10);
 
-  const adminRole = await prisma.role.create({
-    data: {
+  const adminRoles = await prisma.role.createMany({
+    data: [
+      {
+        name: "ADMIN",
+      },
+      {
+        name: "Member",
+      },
+    ],
+  });
+  const jobs = await prisma.job.createMany({
+    data: [
+      {
+        name: "Engineer",
+      },
+      {
+        name: "ProductManager",
+      },
+      {
+        name: "SRE",
+      },
+      {
+        name: "InfoSystem",
+      },
+      {
+        name: "EngineerManager",
+      },
+    ],
+    skipDuplicates: true,
+  });
+  const adminRole = await prisma.role.findUnique({
+    where: {
       name: "ADMIN",
     },
   });
-  const engineerJob = await prisma.job.create({
-    data: {
+  const engineerJob = await prisma.job.findUnique({
+    where: {
       name: "Engineer",
     },
   });
@@ -48,10 +78,10 @@ async function seed() {
         },
       },
       roles: {
-        connect: [{ id: adminRole.id }],
+        connect: [{ id: adminRole?.id ?? 1 }],
       },
       Job: {
-        connect: { id: engineerJob.id },
+        connect: { id: engineerJob?.id ?? 1 },
       },
     },
   });
@@ -66,10 +96,10 @@ async function seed() {
         },
       },
       roles: {
-        connect: [{ id: adminRole.id }],
+        connect: [{ id: adminRole?.id ?? 1 }],
       },
       Job: {
-        connect: { id: engineerJob.id },
+        connect: { id: engineerJob?.id ?? 1 },
       },
     },
   });

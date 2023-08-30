@@ -5,7 +5,13 @@ import {
   type V2_MetaFunction,
 } from "@remix-run/node";
 import * as yaml from "yaml";
-import { Form, Link, Outlet, useLoaderData } from "@remix-run/react";
+import {
+  Form,
+  Link,
+  Outlet,
+  useActionData,
+  useLoaderData,
+} from "@remix-run/react";
 import invariant from "tiny-invariant";
 import { getLatestTerms, getTermById } from "~/models/term.server";
 import { toInputDateTimeLocal } from "~/time_util";
@@ -61,29 +67,37 @@ export const action = async ({ request }: ActionArgs) => {
   const formData = await request.formData();
   const termId = Number(formData.get("termId") ?? "0");
   const name = formData.get("name");
-  invariant(name, "name is required");
-  const startAt = formData.get("startAt");
-  invariant(startAt, "startAt is required");
-  const endAt = formData.get("endAt");
-  invariant(endAt, "endAt is required");
-  const sectionYaml = formData.get("sectionYaml");
-  invariant(sectionYaml, "sectionYaml is required");
-  await upsertAskSelectionSet(
-    termId,
-    {
-      name: name as string,
-      startAt: new Date(startAt as string),
-      endAt: new Date(endAt as string),
-    },
-    sectionYaml as string
-  );
-  return json({ aaa: "a" });
+  try {
+    invariant(name, "name is required");
+    const startAt = formData.get("startAt");
+    invariant(startAt, "startAt is required");
+    const endAt = formData.get("endAt");
+    invariant(endAt, "endAt is required");
+    const sectionYaml = formData.get("sectionYaml");
+    invariant(sectionYaml, "sectionYaml is required");
+    await upsertAskSelectionSet(
+      termId,
+      {
+        name: name as string,
+        startAt: new Date(startAt as string),
+        endAt: new Date(endAt as string),
+      },
+      sectionYaml as string
+    );
+    return json({ hasError: false, message: "Saved!" });
+  } catch (e) {
+    return json({
+      hasError: true,
+      message: e instanceof Error ? e.message : "Unknown error",
+    });
+  }
 };
 
 export default function EditTerm() {
   const { term, sectionYaml } = useLoaderData<typeof loader>();
+  const actionResult = useActionData<typeof action>();
 
-  const [sectionYamlValue, setSectionYaml] = useState<string>("");
+  const [sectionYamlValue, setSectionYaml] = useState<string>(sectionYaml);
 
   const errors = [] as string[];
   try {
@@ -161,13 +175,28 @@ export default function EditTerm() {
           ))}
         </div>
       )}
-      <button
-        disabled={errors.length > 0}
-        type="submit"
-        className=" rounded-lg bg-green-500 px-4 py-2 disabled:bg-gray-400"
-      >
-        更新
-      </button>
+      <div className="flex flex-row place-content-center items-center">
+        <div className="basis-1/6">
+          <button
+            disabled={errors.length > 0}
+            type="submit"
+            className=" rounded-lg bg-green-500 px-4 py-2 disabled:bg-gray-400"
+          >
+            更新
+          </button>
+        </div>
+        <div className="basis-5/6">
+          {actionResult && (
+            <div
+              className={
+                actionResult.hasError ? "text-red-500" : "text-green-500"
+              }
+            >
+              {actionResult.message}
+            </div>
+          )}
+        </div>
+      </div>
     </Form>
   );
 }
