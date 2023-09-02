@@ -31,8 +31,24 @@ export const AskItemComponent = ({
         })
       : -1
   );
+  const [noConfidence, setNoConfidence] = useState(
+    askItem.answerItem?.noConfidence || false
+  );
   const [submitted, setSubmitted] = useState(false);
   const fetcher = useFetcher();
+
+  const updateAnswer = (value: string, noConfidence: boolean) => {
+    const formData = new FormData();
+    formData.append("askItemId", askItem.id.toString());
+    formData.append("value", value);
+    formData.append("noConfidence", noConfidence.toString());
+    formData.append("evaluationId", evaluationId.toString());
+    fetcher.submit(formData, {
+      method: "post",
+      action: "/evaluation_post/update_answer",
+      replace: false,
+    });
+  };
 
   const selections = answerSelectionSet?.answerSelections.map(
     (selection, index) => {
@@ -52,15 +68,7 @@ export const AskItemComponent = ({
               };
               setSelected(index);
               setSubmitted(true);
-              const formData = new FormData();
-              formData.append("askItemId", askItem.id.toString());
-              formData.append("value", selection.value.toString());
-              formData.append("evaluationId", evaluationId.toString());
-              fetcher.submit(formData, {
-                method: "post",
-                action: "/evaluation_post/update_answer",
-                replace: false,
-              });
+              updateAnswer(selection.value.toString(), noConfidence);
             }}
           >
             {selection.label}
@@ -73,7 +81,46 @@ export const AskItemComponent = ({
   return (
     <div>
       <div className="flex flex-row">
-        <div className="basis-3/4">{askItem.askText}</div>
+        <div className="basis-2/4">{askItem.askText}</div>
+        <div className="basis-1/4">
+          <div className="flex items-center">
+            <input
+              checked={noConfidence}
+              onChange={(e) => {
+                askItem.answerItem = {
+                  value: askItem.answerItem?.value ?? 1,
+                  noConfidence: askItem.answerItem?.noConfidence || false,
+                };
+                setNoConfidence(!noConfidence);
+                updateAnswer(
+                  askItem.answerItem?.value + "",
+                  !askItem.answerItem?.noConfidence
+                );
+              }}
+              id="checked-checkbox"
+              type="checkbox"
+              value=""
+              className="h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
+            />
+            <label
+              htmlFor="checked-checkbox"
+              className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+            >
+              回答に自信がない
+            </label>
+            <button data-tooltip-target={"tooltip-" + askItem.id} type="button">
+              ?
+            </button>
+            <div
+              id={"tooltip-" + askItem.id}
+              role="tooltip"
+              className="tooltip invisible absolute z-10 inline-block rounded-lg bg-gray-900 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-sm transition-opacity duration-300 dark:bg-gray-700"
+            >
+              Tooltip content
+              <div className="tooltip-arrow" data-popper-arrow></div>
+            </div>
+          </div>
+        </div>
         <div className="basis-1/4 text-right">
           {submitted &&
             (fetcher.state === "loading" ? (

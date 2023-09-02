@@ -135,8 +135,10 @@ model AnswerSelection {
 model AskItem {
   id      Int    @id @default(autoincrement())
   askText String
+  difficulty Int @default(0)
 
   ordering Int
+
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

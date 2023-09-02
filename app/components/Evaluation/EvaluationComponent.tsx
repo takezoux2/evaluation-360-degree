@@ -11,6 +11,7 @@ export const EvaluationComponent = ({
       <div className="p-3">{evaluation.evaluatee.name}さんの360度評価</div>
       <div>
         <SectionTab
+          key={evaluation.id}
           sections={evaluation.term.askSections}
           evaluationId={evaluation.id}
         ></SectionTab>
