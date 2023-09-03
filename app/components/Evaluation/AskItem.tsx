@@ -37,6 +37,8 @@ export const AskItemComponent = ({
   const [submitted, setSubmitted] = useState(false);
   const fetcher = useFetcher();
 
+  const [showTooltip, setShowTooltip] = useState(false);
+
   const updateAnswer = (value: string, noConfidence: boolean) => {
     const formData = new FormData();
     formData.append("askItemId", askItem.id.toString());
@@ -83,7 +85,7 @@ export const AskItemComponent = ({
       <div className="flex flex-row">
         <div className="basis-2/4">{askItem.askText}</div>
         <div className="basis-1/4">
-          <div className="flex items-center">
+          <div className="relative flex items-center">
             <input
               checked={noConfidence}
               onChange={(e) => {
@@ -92,6 +94,7 @@ export const AskItemComponent = ({
                   noConfidence: askItem.answerItem?.noConfidence || false,
                 };
                 setNoConfidence(!noConfidence);
+                setSubmitted(true);
                 updateAnswer(
                   askItem.answerItem?.value + "",
                   !askItem.answerItem?.noConfidence
@@ -108,17 +111,26 @@ export const AskItemComponent = ({
             >
               回答に自信がない
             </label>
-            <button data-tooltip-target={"tooltip-" + askItem.id} type="button">
-              ?
-            </button>
             <div
-              id={"tooltip-" + askItem.id}
-              role="tooltip"
-              className="tooltip invisible absolute z-10 inline-block rounded-lg bg-gray-900 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-sm transition-opacity duration-300 dark:bg-gray-700"
+              className=" ml-1 rounded-lg border border-gray-700 text-sm hover:cursor-pointer"
+              onPointerOut={() => setShowTooltip(false)}
+              onPointerEnter={() => setShowTooltip(true)}
             >
-              Tooltip content
-              <div className="tooltip-arrow" data-popper-arrow></div>
+              ❔
             </div>
+
+            {showTooltip && (
+              <div
+                role="tooltip"
+                className="tooltip absolute bottom-6 z-10 inline-block w-[300px] rounded-lg bg-gray-900 px-1 text-sm font-medium text-white opacity-100 shadow-sm transition-opacity duration-300 dark:bg-gray-700"
+              >
+                評価する人とあまり接点がなかったり、業務上で質問項目に関して関わったことがないなど、回答に自信がない場合にこちらにチェックをお願いします。
+                <br />
+                <span className="text-red-600">
+                  チェックを入れた場合もいずれかの選択肢は選んでください。
+                </span>
+              </div>
+            )}
           </div>
         </div>
         <div className="basis-1/4 text-right">
