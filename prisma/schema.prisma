@@ -17,12 +17,14 @@ model User {
 
   password Password?
 
-  SnsLink             SnsLink?
-  roles               Role[]
-  Job                 Job          @relation(fields: [jobId], references: [id])
-  jobId               Int
-  evaluations         Evaluation[] @relation("Evaluators")
-  receivedEvaluations Evaluation[] @relation("Evaluatees")
+  SnsLink              SnsLink?
+  roles                Role[]
+  Job                  Job                   @relation(fields: [jobId], references: [id])
+  jobId                Int
+  evaluations          Evaluation[]          @relation("Evaluators")
+  receivedEvaluations  Evaluation[]          @relation("Evaluatees")
+  ExamAnswer           ExamAnswer[]
+  PersonalTermOverride PersonalTermOverride?
 }
 
 model Password {
@@ -76,7 +78,7 @@ model Job {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  users       User[]
+  users    User[]
   askItems AskItem[]
 }
 
@@ -92,8 +94,10 @@ model Term {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  askSections AskSection[]
-  evalustions Evaluation[]
+  askSections          AskSection[]
+  evalustions          Evaluation[]
+  Examination          Examination[]
+  PersonalTermOverride PersonalTermOverride[]
 }
 
 model AskSection {
@@ -123,22 +127,21 @@ model AnswerSelectionSet {
 }
 
 model AnswerSelection {
-  id                   Int                 @id @default(autoincrement())
+  id                   Int                @id @default(autoincrement())
   label                String
   value                Int
-  createdAt            DateTime            @default(now())
-  updatedAt            DateTime            @updatedAt
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
   answerSelectionSet   AnswerSelectionSet @relation(fields: [answerSelectionSetId], references: [id])
   answerSelectionSetId Int
 }
 
 model AskItem {
-  id      Int    @id @default(autoincrement())
-  askText String
-  difficulty Int @default(0)
+  id         Int    @id @default(autoincrement())
+  askText    String
+  difficulty Int    @default(0)
 
   ordering Int
-
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -182,6 +185,98 @@ model AnswerItem {
   evaluationId Int?
 
   @@unique([askItemId, evaluationId])
+}
+
+// 試験
+
+model Examination {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  // 回答開始からの制限時間(分)
+  timeLimitInMinutes Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  term   Term @relation(fields: [termId], references: [id])
+  termId Int
+
+  examQuestions ExamQuestion[]
+}
+
+model ExamQuestion {
+  id        Int    @id @default(autoincrement())
+  text      String @db.Text
+  imagePath String
+  score     Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  examination            Examination             @relation(fields: [examinationId], references: [id])
+  examinationId          Int
+  examQuestionSelections ExamQuestionSelection[]
+  examAnswer             ExamAnswer[]
+}
+
+model ExamQuestionSelection {
+  id              Int     @id @default(autoincrement())
+  label           String
+  isCorrectAnswer Boolean
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  examQuestion   ExamQuestion     @relation(fields: [examQuestionId], references: [id])
+  examQuestionId Int
+  examAnswerItem ExamAnswerItem[]
+}
+
+model ExamAnswer {
+  id Int @id @default(autoincrement())
+
+  startedAt DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User @relation(fields: [userId], references: [id])
+  userId Int
+
+  examQuestion   ExamQuestion     @relation(fields: [examQuestionId], references: [id])
+  examQuestionId Int
+  examAnswerItem ExamAnswerItem[]
+}
+
+model ExamAnswerItem {
+  id Int @id @default(autoincrement())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  examAnswer   ExamAnswer @relation(fields: [examAnswerId], references: [id])
+  examAnswerId Int
+
+  examQuestionSelection   ExamQuestionSelection @relation(fields: [examQuestionSelectionId], references: [id])
+  examQuestionSelectionId Int
+}
+
+//  個人の期間の上書き設定
+model PersonalTermOverride {
+  id Int @id @default(autoincrement())
+
+  // Termの終了時間
+  endAt DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User @relation(fields: [userId], references: [id])
+  userId Int  @unique
+
+  term   Term @relation(fields: [termId], references: [id])
+  termId Int
 }
 
 // drop database evaluation360degree;

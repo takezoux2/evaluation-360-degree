@@ -1,12 +1,15 @@
 import { Term } from "@prisma/client";
-import { SerializeFrom } from "@remix-run/node";
 import { prisma } from "~/db.server";
-import { StripReturnType, UnwrapPromise } from "./type_util";
+import { StripReturnType } from "./type_util";
 
 export type ListTerm = StripReturnType<typeof getTerms> & {
   isInTerm: boolean;
 };
 
+/**
+ * 有効期限内のTermを取得する
+ * @returns 
+ */
 export async function getTerms() {
   const now = new Date();
   return prisma.term
