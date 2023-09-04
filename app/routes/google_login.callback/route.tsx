@@ -1,4 +1,4 @@
-import type { ActionArgs, LoaderArgs, V2_MetaFunction } from "@remix-run/node";
+import type { ActionArgs, V2_MetaFunction } from "@remix-run/node";
 import { getGoogleUserDataFromAuthCode } from "./google_login.server";
 import { createUserSession } from "~/session.server";
 import { useActionData } from "@remix-run/react";

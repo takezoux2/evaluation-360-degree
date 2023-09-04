@@ -1,7 +1,6 @@
 import {
   ActionArgs,
   json,
-  LoaderArgs,
   NodeOnDiskFile,
   unstable_composeUploadHandlers,
   unstable_createFileUploadHandler,
@@ -9,10 +8,8 @@ import {
   unstable_parseMultipartFormData,
   type V2_MetaFunction,
 } from "@remix-run/node";
-import { Link, Outlet, useActionData, useLoaderData } from "@remix-run/react";
+import { Link, useActionData, useLoaderData } from "@remix-run/react";
 import invariant from "tiny-invariant";
-import { upsertUsers } from "~/models/user.server";
-import { requireAdminUser, requireUser } from "~/session.server";
 import { regiterUsers } from "./upload_csv.server";
 import { getJobs } from "~/models/job.server";
 

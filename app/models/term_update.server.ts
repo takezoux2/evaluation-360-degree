@@ -12,6 +12,7 @@ export type SectionType = {
     | string
     | {
         label: string;
+        difficulty: number;
         jobs: string[];
       }
   )[];
@@ -25,7 +26,7 @@ export type SectionType = {
   };
 };
 // Use https://transform.tools/typescript-to-zod
-export const sectionTypeSchema = z.object({
+const sectionTypeSchema = z.object({
   id: z.string().optional(),
   label: z.string(),
   questions: z.array(
@@ -33,8 +34,9 @@ export const sectionTypeSchema = z.object({
       z.string(),
       z.object({
         label: z.string(),
-        jobs: z.array(z.string()),
-      }),
+        difficulty: z.number(),
+        jobs: z.array(z.string())
+      })
     ])
   ),
   selectionSet: z.object({
@@ -44,12 +46,12 @@ export const sectionTypeSchema = z.object({
       .array(
         z.object({
           label: z.string(),
-          value: z.string(),
+          value: z.string()
         })
       )
-      .optional(),
-  }),
-});
+      .optional()
+  })
+})
 
 export const upsertAskSelectionSet = async (
   termId: number,
@@ -211,6 +213,7 @@ export const upsertAskSelectionSet = async (
             askSectionId: sectionRecord.id,
             askText: typeof askText === "string" ? askText : askText.label,
             ordering: i + 1,
+            difficulty: typeof askText === "string" ? 1 : askText.difficulty,
             targetJobs: {
               connect: jobs.map((j) => ({ id: j.id })),
             },

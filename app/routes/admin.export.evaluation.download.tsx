@@ -1,5 +1,4 @@
 import { LoaderArgs } from "@remix-run/node";
-import { getSampleCsv } from "./admin.import.evaluation/upload_csv.server";
 import { requireAdminUser } from "~/session.server";
 import { getTermById } from "~/models/term.server";
 import invariant from "tiny-invariant";
