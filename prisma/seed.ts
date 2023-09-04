@@ -131,7 +131,16 @@ async function seed() {
       name: "2023 1Q",
       explanationMarkdown: "2023 1Qの説明",
       startAt: new Date(),
-      endAt: new Date(2025),
+      endAt: new Date(2024, 1, 1),
+    },
+  });
+
+  const term2 = await prisma.term.create({
+    data: {
+      name: "2023 3Q",
+      explanationMarkdown: "2023 1Qの説明",
+      startAt: new Date(),
+      endAt: new Date(2025, 1, 1),
     },
   });
   const section1 = await prisma.askSection.create({
@@ -196,7 +205,7 @@ async function seed() {
       term: {
         connect: { id: term.id },
       },
-      timeLimitInMinutes: 5
+      timeLimitInMinutes: 5,
     },
   });
   const examQuestion = await prisma.examQuestion.create({
@@ -206,24 +215,24 @@ async function seed() {
       },
       imagePath: "hoge.png",
       text: "examQuestion",
-      score: 1
-    }
-  })
+      score: 1,
+    },
+  });
 
   await prisma.examQuestionSelection.createMany({
     data: [
       {
         examQuestionId: examQuestion.id,
         label: "examQuestionSelection1",
-        isCorrectAnswer: false
+        isCorrectAnswer: false,
       },
       {
         examQuestionId: examQuestion.id,
         label: "examQuestionSelection2",
-        isCorrectAnswer: true
-      }
-    ]
-  })
+        isCorrectAnswer: true,
+      },
+    ],
+  });
 
   console.log(`Database has been seeded. 🌱`);
 }

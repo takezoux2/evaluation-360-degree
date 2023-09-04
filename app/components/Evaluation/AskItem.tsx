@@ -80,10 +80,30 @@ export const AskItemComponent = ({
     }
   );
 
+  const brText = askItem.askText.split("\n").map((str, index, arr) => {
+    if (index === arr.length - 1) return str;
+    else
+      return (
+        <>
+          {str}
+          <br />
+          {"\n"}
+        </>
+      );
+  });
+
   return (
     <div>
       <div className="flex flex-row">
-        <div className="basis-2/4">{askItem.askText}</div>
+        <div className="basis-2/4">{brText}</div>
+        <div className="basis-1/4">
+          {submitted &&
+            (fetcher.state === "loading" ? (
+              <div>Saving...</div>
+            ) : (
+              <div className="text-green-500">✅Saved</div>
+            ))}
+        </div>
         <div className="basis-1/4">
           <div className="relative flex items-center">
             <input
@@ -122,7 +142,7 @@ export const AskItemComponent = ({
             {showTooltip && (
               <div
                 role="tooltip"
-                className="tooltip absolute bottom-6 z-10 inline-block w-[300px] rounded-lg bg-gray-900 px-1 text-sm font-medium text-white opacity-100 shadow-sm transition-opacity duration-300 dark:bg-gray-700"
+                className="tooltip absolute bottom-6 right-0 z-10 inline-block w-[300px] rounded-lg bg-gray-900 px-1 text-sm font-medium text-white opacity-100 shadow-sm transition-opacity duration-300 dark:bg-gray-700"
               >
                 評価する人とあまり接点がなかったり、業務上で質問項目に関して関わったことがないなど、回答に自信がない場合にこちらにチェックをお願いします。
                 <br />
@@ -132,14 +152,6 @@ export const AskItemComponent = ({
               </div>
             )}
           </div>
-        </div>
-        <div className="basis-1/4 text-right">
-          {submitted &&
-            (fetcher.state === "loading" ? (
-              <div>Saving...</div>
-            ) : (
-              <div className="text-green-500">✅Saved</div>
-            ))}
         </div>
       </div>
       <div className="flex w-full flex-row items-center rounded-lg border border-gray-200 bg-white text-sm font-medium text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white">

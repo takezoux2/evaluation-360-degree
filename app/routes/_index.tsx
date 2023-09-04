@@ -5,16 +5,24 @@ export const meta: V2_MetaFunction = () => [{ title: "Remix Notes" }];
 
 export default function Index() {
   const user = useOptionalUser();
+  const buttonClassName = "bg-green-300 border-black p-2 rounded-md";
   return (
-    <main className="relative flex min-h-screen bg-white">
-      <ul className="p-10">
-        <li>
-          <a href="/evaluation">評価</a>
-        </li>
-        <li>
-          <a href="/admin">管理ページ</a>
-        </li>
-      </ul>
+    <main className="relative flex min-h-screen flex-col bg-white p-2">
+      <div className="m-2">
+        <a className={buttonClassName} href="/evaluation">
+          評価
+        </a>
+      </div>
+      <div className="m-2">
+        <a className={buttonClassName} href="/exam">
+          試験
+        </a>
+      </div>
+      <div className="m-2">
+        <a className={buttonClassName} href="/admin">
+          管理ページ
+        </a>
+      </div>
     </main>
   );
 }
