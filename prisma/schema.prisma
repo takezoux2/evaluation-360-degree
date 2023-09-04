@@ -203,6 +203,7 @@ model Examination {
   termId Int
 
   examQuestions ExamQuestion[]
+  ExamAnswer    ExamAnswer[]
 }
 
 model ExamQuestion {
@@ -217,7 +218,7 @@ model ExamQuestion {
   examination            Examination             @relation(fields: [examinationId], references: [id])
   examinationId          Int
   examQuestionSelections ExamQuestionSelection[]
-  examAnswer             ExamAnswer[]
+  ExamAnswerItem         ExamAnswerItem[]
 }
 
 model ExamQuestionSelection {
@@ -236,7 +237,10 @@ model ExamQuestionSelection {
 model ExamAnswer {
   id Int @id @default(autoincrement())
 
+  // 回答開始時間
   startedAt DateTime
+  // 回答終了時間
+  endedAt   DateTime
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -244,9 +248,12 @@ model ExamAnswer {
   user   User @relation(fields: [userId], references: [id])
   userId Int
 
-  examQuestion   ExamQuestion     @relation(fields: [examQuestionId], references: [id])
-  examQuestionId Int
+  examination   Examination @relation(fields: [examinationId], references: [id])
+  examinationId Int
+
   examAnswerItem ExamAnswerItem[]
+
+  @@unique([userId, examinationId])
 }
 
 model ExamAnswerItem {
@@ -258,8 +265,13 @@ model ExamAnswerItem {
   examAnswer   ExamAnswer @relation(fields: [examAnswerId], references: [id])
   examAnswerId Int
 
+  examQuestion   ExamQuestion @relation(fields: [examQuestionId], references: [id])
+  examQuestionId Int
+
   examQuestionSelection   ExamQuestionSelection @relation(fields: [examQuestionSelectionId], references: [id])
   examQuestionSelectionId Int
+
+  @@unique([examAnswerId, examQuestionId])
 }
 
 //  個人の期間の上書き設定

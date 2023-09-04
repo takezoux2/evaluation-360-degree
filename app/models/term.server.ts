@@ -11,8 +11,17 @@ export type ListTerm = StripReturnType<typeof getTerms> & {
  * @returns 
  */
 export async function getTerms() {
+  return getTermsInTerm(0);
+}
+/**
+ * 指定ユーザーの有効期限内のTermを取得する
+ * @param userId 
+ * @returns 
+ */
+export async function getTermsInTerm(userId: number) {
   const now = new Date();
-  return prisma.term
+
+  const terms = await prisma.term
     .findMany({
       where: {
         startAt: { lte: now },
@@ -20,15 +29,25 @@ export async function getTerms() {
       },
       orderBy: { startAt: "desc" },
     })
-    .then((terms) =>
-      terms.map((term) => {
-        const start = term.startAt.getTime();
-        const end = term.endAt.getTime();
-        return Object.assign(term, {
-          isInTerm: start <= now.getTime() && now.getTime() <= end,
-        });
-      })
-    );
+  // 個人延長を取得
+  const personalTerms = await prisma.personalTermOverride.findMany({
+    where: {
+      userId,
+      endAt: { gte: now },
+    },
+    orderBy: { endAt: "desc" },
+    include: {
+      term: true,
+    }
+  }).then(r => r.map(r => r.term).filter(t => !terms.some(t2 => t2.id === t.id)))
+
+  return [...terms, ...personalTerms].map(term => {
+    const start = term.startAt.getTime();
+    const end = term.endAt.getTime();
+    return Object.assign(term, {
+      isInTerm: start <= now.getTime() && now.getTime() <= end,
+    });
+  })
 }
 
 export async function getNotEndTerms() {

@@ -24,6 +24,11 @@ async function seed() {
     prisma.askItem.deleteMany(),
     prisma.answerItem.deleteMany(),
     prisma.evaluation.deleteMany(),
+    prisma.examination.deleteMany(),
+    prisma.examAnswer.deleteMany(),
+    prisma.examAnswerItem.deleteMany(),
+    prisma.examQuestion.deleteMany(),
+    prisma.examQuestionSelection.deleteMany(),
   ]);
 
   const hashedPassword = await bcrypt.hash("racheliscool", 10);
@@ -184,6 +189,41 @@ async function seed() {
       },
     },
   });
+
+  const examination = await prisma.examination.create({
+    data: {
+      name: "examination",
+      term: {
+        connect: { id: term.id },
+      },
+      timeLimitInMinutes: 5
+    },
+  });
+  const examQuestion = await prisma.examQuestion.create({
+    data: {
+      examination: {
+        connect: { id: examination.id },
+      },
+      imagePath: "hoge.png",
+      text: "examQuestion",
+      score: 1
+    }
+  })
+
+  await prisma.examQuestionSelection.createMany({
+    data: [
+      {
+        examQuestionId: examQuestion.id,
+        label: "examQuestionSelection1",
+        isCorrectAnswer: false
+      },
+      {
+        examQuestionId: examQuestion.id,
+        label: "examQuestionSelection2",
+        isCorrectAnswer: true
+      }
+    ]
+  })
 
   console.log(`Database has been seeded. 🌱`);
 }
