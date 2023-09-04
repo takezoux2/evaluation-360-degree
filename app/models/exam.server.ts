@@ -64,6 +64,53 @@ export async function getFullExam(userId: number, examinationId: number) {
   }     
 }
 
+/**
+ * 試験結果を取得
+ * @param termId 
+ * @returns 
+ */
+export async function getExamScores(termId: number) {
+  const exams = await prisma.examination.findMany({
+    where: {
+      termId
+    },
+    include: {
+      examQuestions: true
+    }
+  })
+
+  return Promise.all(exams.map(async (exam) => {
+    const answers = await prisma.examAnswer.findMany({
+      where: {
+        examinationId: exam.id
+      },
+      include: {
+        user: true,
+        examAnswerItem: {
+          include: {
+            examQuestionSelection: true
+          }
+        }
+      }
+    })
+    const fullScore = exam.examQuestions.reduce((acc, cur) => acc + cur.score, 0)
+    return [exam, answers.map(answer => {
+      const score = answer.examAnswerItem.reduce((acc, cur) => {
+        const question = exam.examQuestions.find(q => q.id === cur.examQuestionId)
+        return acc + (cur.examQuestionSelection.isCorrectAnswer ? (question?.score ?? 0) : 0)
+      }, 0)
+      return {
+        userId: answer.userId,
+        userName: answer.user.name,
+        score,
+        fullScore
+      }
+    })]
+  }))
+  
+
+}
+
 export async function startExam(userId: number, examinationId: number) {
   const now = DateTime.local()
   const exam = await prisma.examination.findUnique({
