@@ -242,6 +242,8 @@ model ExamAnswer {
   // 回答終了時間
   endedAt   DateTime
 
+  isCheater Boolean
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -252,6 +254,7 @@ model ExamAnswer {
   examinationId Int
 
   examAnswerItem ExamAnswerItem[]
+  examCheatLog ExamCheatLog[]
 
   @@unique([userId, examinationId])
 }
@@ -272,6 +275,15 @@ model ExamAnswerItem {
   examQuestionSelectionId Int
 
   @@unique([examAnswerId, examQuestionId])
+}
+model ExamCheatLog {
+  id Int @id @default(autoincrement())
+  cheatType String
+  message String @db.Text
+  createdAt DateTime @default(now())
+
+  examAnswer   ExamAnswer @relation(fields: [examAnswerId], references: [id])
+  examAnswerId Int
 }
 
 //  個人の期間の上書き設定
