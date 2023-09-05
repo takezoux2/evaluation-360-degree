@@ -29,9 +29,8 @@ export const ExamStartPanel = (props: {
 
       <div className="p-3">
         注意 <br />
-        <ul>
+        <ul className="list-disc">
           <li>受験期限内に回答完了できるようにしてください。</li>
-          <li>問題文は選択できないようになっています。</li>
           <li className="text-red-400">
             デバッグコンソールを開いている場合は、閉じてから受験を開始してください。
           </li>
@@ -40,7 +39,7 @@ export const ExamStartPanel = (props: {
             チート行為と判断されると試験の点数は0点となり、懲戒処分の可能性もあります。
           </li>
           <li>
-            変な操作を行った場合も、チート行為とみなされる可能性があります。ご注意ください。
+            変な操作を行った場合も、チート行為とみなされる可能性がありますので、ご注意ください。
           </li>
         </ul>
       </div>

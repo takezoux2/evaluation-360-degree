@@ -13,10 +13,6 @@ async function seed() {
   const email = "takezoux2@gmail.com";
 
   await prisma.$transaction([
-    prisma.role.deleteMany(),
-    prisma.job.deleteMany(),
-    prisma.user.deleteMany(),
-    prisma.password.deleteMany(),
     prisma.answerSelectionSet.deleteMany(),
     prisma.answerSelection.deleteMany(),
     prisma.term.deleteMany(),
@@ -29,6 +25,11 @@ async function seed() {
     prisma.examAnswerItem.deleteMany(),
     prisma.examQuestion.deleteMany(),
     prisma.examQuestionSelection.deleteMany(),
+    prisma.examCheatLog.deleteMany(),
+    prisma.password.deleteMany(),
+    prisma.role.deleteMany(),
+    prisma.user.deleteMany(),
+    prisma.job.deleteMany(),
   ]);
 
   const hashedPassword = await bcrypt.hash("racheliscool", 10);
@@ -208,31 +209,34 @@ async function seed() {
       timeLimitInMinutes: 5,
     },
   });
-  const examQuestion = await prisma.examQuestion.create({
-    data: {
-      examination: {
-        connect: { id: examination.id },
+  for (let i = 0; i < 10; i++) {
+    const examQuestion = await prisma.examQuestion.create({
+      data: {
+        examination: {
+          connect: { id: examination.id },
+        },
+        imagePath: "hoge.png",
+        text: `これは${i + 1}問目です。
+      以下の問題を解いてください。`,
+        score: 1,
       },
-      imagePath: "hoge.png",
-      text: "examQuestion",
-      score: 1,
-    },
-  });
+    });
 
-  await prisma.examQuestionSelection.createMany({
-    data: [
-      {
-        examQuestionId: examQuestion.id,
-        label: "examQuestionSelection1",
-        isCorrectAnswer: false,
-      },
-      {
-        examQuestionId: examQuestion.id,
-        label: "examQuestionSelection2",
-        isCorrectAnswer: true,
-      },
-    ],
-  });
+    await prisma.examQuestionSelection.createMany({
+      data: [
+        {
+          examQuestionId: examQuestion.id,
+          label: "examQuestion\nSelection1",
+          isCorrectAnswer: false,
+        },
+        {
+          examQuestionId: examQuestion.id,
+          label: "examQuestionSelection2",
+          isCorrectAnswer: true,
+        },
+      ],
+    });
+  }
 
   console.log(`Database has been seeded. 🌱`);
 }

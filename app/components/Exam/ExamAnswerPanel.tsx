@@ -6,9 +6,16 @@ import { useState } from "react";
 import { DateTime } from "luxon";
 import ExamTimeBar from "./ExamTimeBar";
 
-export function ExamAnswerPanel({ selectedExam }: { selectedExam: FullExam }) {
+export function ExamAnswerPanel({
+  selectedExam,
+  onFinish,
+}: {
+  selectedExam: FullExam;
+  onFinish: () => void;
+}) {
   const fetcher = useFetcher();
   const [questionIndex, setQuestionIndex] = useState(0);
+  const question = selectedExam.exam.examQuestions[questionIndex];
 
   return (
     <div className="flex flex-col">
@@ -17,7 +24,7 @@ export function ExamAnswerPanel({ selectedExam }: { selectedExam: FullExam }) {
           start={DateTime.fromISO(selectedExam.answer?.startedAt ?? "")}
           end={DateTime.fromISO(selectedExam.answer?.endedAt ?? "")}
           onFinish={() => {
-            console.log("Finished");
+            onFinish();
           }}
         />
       </div>
@@ -30,7 +37,7 @@ export function ExamAnswerPanel({ selectedExam }: { selectedExam: FullExam }) {
       </div>
       <div>
         <ExamQuestionPanel
-          examQuestion={selectedExam.exam.examQuestions[0]}
+          examQuestion={question}
           onCheeted={(e) => {
             const formData = new FormData();
             formData.append("cheatType", e.type);
@@ -59,6 +66,9 @@ export function ExamAnswerPanel({ selectedExam }: { selectedExam: FullExam }) {
               method: "post",
               action: "/exam",
               replace: true,
+            });
+            setQuestionIndex((i) => {
+              return i < selectedExam.exam.examQuestions.length - 1 ? i + 1 : i;
             });
           }}
         />

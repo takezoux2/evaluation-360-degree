@@ -5,12 +5,7 @@ import {
   type V2_MetaFunction,
 } from "@remix-run/node";
 import * as yaml from "yaml";
-import {
-  Form,
-  useActionData,
-  useFetcher,
-  useLoaderData,
-} from "@remix-run/react";
+import { Form, useLoaderData } from "@remix-run/react";
 import invariant from "tiny-invariant";
 import { getLatestTerms, getTermById } from "~/models/term.server";
 import { toInputDateTimeLocal, toUntil } from "~/time_util";
@@ -32,6 +27,7 @@ import CountDownTimer from "~/components/CountDownTimer";
 import { ExamStartPanel } from "~/components/Exam/ExamStartPanel";
 import { ExamQuestionPanel } from "~/components/Exam/ExamQuestionPanel";
 import { ExamAnswerPanel } from "~/components/Exam/ExamAnswerPanel";
+import ExamPanel from "~/components/Exam/ExamPanel";
 
 export const meta: V2_MetaFunction = () => [{ title: "Remix Notes" }];
 
@@ -58,10 +54,12 @@ export const action = async ({ request }: ActionArgs) => {
   const startExam = formData.get("startExam");
   if (startExam) {
     const examinationId = Number(formData.get("examinationId") ?? "0");
-    await startExamination(user.id, examinationId);
-    return {
+    const answer = await startExamination(user.id, examinationId);
+    console.log(answer);
+    return json({
       message: "Start examination",
-    };
+      answer: answer,
+    });
   }
 
   // 試験の回答
@@ -152,40 +150,12 @@ export default function Exam() {
       <span>現在受験可能な試験はありません</span>
     );
 
-  const fetcher = useFetcher();
-  // コンポーネントの再レンダリングを強制
-  const [updateFlag, setUpdateFlag] = useState(1);
-  const forceUpdate = () => setUpdateFlag((i) => i + 1);
-  const examComponent = selectedExam ? (
-    selectedExam.exam.state === "未回答" ? (
-      <ExamStartPanel
-        limitMinute={selectedExam.exam.timeLimitInMinutes}
-        onStartExam={() => {
-          const formData = new FormData();
-          formData.append("startExam", "true");
-          formData.append("examinationId", selectedExam.exam.id.toString());
-          fetcher.submit(formData, {
-            method: "post",
-            action: "/exam",
-            replace: true,
-          });
-          selectedExam.exam.state = "回答中";
-          forceUpdate();
-        }}
-      />
-    ) : (
-      <ExamAnswerPanel selectedExam={selectedExam} />
-    )
-  ) : (
-    <div>試験を選択してください</div>
-  );
-
   return (
     <>
       <header>
         <div className="flex flex-row items-center justify-between p-1">
           <div className="basis-3/6">
-            <h2 className="px-2 text-2xl">情報科学 試験</h2>
+            <h2 className="px-2 text-2xl">情報科学 筆記試験</h2>
           </div>
           <div className="basis-2/6 p-2 text-right">
             {user.name}:{user.Job.name}
@@ -206,7 +176,9 @@ export default function Exam() {
       <main className="min-h-screen bg-white p-3">
         <div className="items-left flex flex-row">
           <div className="w-1/4">{examList}</div>
-          <div className="w-3/4 p-5">{examComponent}</div>
+          <div className="w-3/4 p-5">
+            <ExamPanel selectedExam={selectedExam} />
+          </div>
         </div>
       </main>
     </>

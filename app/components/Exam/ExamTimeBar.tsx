@@ -1,5 +1,7 @@
 import { DateTime } from "luxon";
 import CountDownTimer from "../CountDownTimer";
+import { useEffect, useState } from "react";
+import { clear } from "console";
 
 export function ExamTimeBar({
   start,
@@ -10,22 +12,35 @@ export function ExamTimeBar({
   end: DateTime;
   onFinish: () => void;
 }) {
+  const [percent, setPersent] = useState(0.5);
+  useEffect(() => {
+    const handler = setInterval(() => {
+      const percent = (end.diffNow().as("seconds") / totalSeconds) * 100;
+      if (percent < 0) {
+        clearInterval(handler);
+      } else {
+        setPersent(percent);
+      }
+    }, 500);
+    return () => {
+      clearInterval(handler);
+    };
+  }, []);
   const totalSeconds = end.diff(start).as("seconds");
-  const percent = end.diffNow().as("seconds") / totalSeconds;
   const barColor =
-    percent > 0.3
+    percent > 30
       ? "bg-green-400"
-      : percent > 0.1
+      : percent > 10
       ? "bg-yellow-300"
       : "bg-red-600";
   return (
     <div className="flex flex-row">
       <div className="w-1/12"></div>
       <div className="w-9/12">
-        <div className="h-full w-full place-items-end rounded-full bg-gray-200 dark:bg-gray-700">
+        <div className="h-full w-full rounded-full bg-gray-200 dark:bg-gray-700">
           <div
             className={"h-full rounded-full " + barColor}
-            style={{ width: `${Math.floor(percent * 100)}%` }}
+            style={{ width: `${percent}%` }}
           ></div>
         </div>
       </div>
