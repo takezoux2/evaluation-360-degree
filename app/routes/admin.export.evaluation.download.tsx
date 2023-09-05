@@ -4,10 +4,11 @@ import { getTermById } from "~/models/term.server";
 import invariant from "tiny-invariant";
 import Papa from "papaparse";
 import { getAllEvaluationsInTerm } from "~/models/evaluation.server";
+import { DateTime } from "luxon";
 
 export async function action({ params, request }: LoaderArgs) {
   console.log("Export evaluations");
-  requireAdminUser(request);
+  await requireAdminUser(request);
   const formData = await request.formData();
   const term = await getTermById(Number(formData.get("term_id")));
   invariant(term, `Term:${formData.get("term_id")} not found`);
@@ -20,13 +21,8 @@ export async function action({ params, request }: LoaderArgs) {
       .map((item, i) => [item.id, i + 4])
   );
 
-  const now = new Date();
-  const exportTime = `${now.getFullYear()}/${
-    now.getMonth() + 1
-  }/${now.getDate()} ${now.getHours().toString().padStart(2, "0")}:${now
-    .getMinutes()
-    .toString()
-    .padStart(2, "0")}:${now.getSeconds().toString().padStart(2, "0")}`;
+  const now = DateTime.now();
+  const exportTime = now.toFormat("yyyy/MM/dd HH:mm:ss");
   const a = 1;
   // zero padding
   const a2 = a.toString().padStart(2, "0");
@@ -57,17 +53,12 @@ export async function action({ params, request }: LoaderArgs) {
 
   const csv = Papa.unparse(rows, {});
 
-  const timestamp =
-    now.getFullYear() * 100_00_00_00 +
-    (now.getMonth() + 1) * 100_00_00 +
-    now.getDate() * 100_00 +
-    now.getHours() * 100 +
-    now.getMinutes();
+  const timestamp = now.toFormat("yyyyMMddHHmm");
   return new Response(csv, {
     status: 200,
     headers: {
       "Content-Type": "text/csv",
-      "Content-Disposition": `attachment; filename="${term.name}_${timestamp}.csv"`,
+      "Content-Disposition": `attachment; filename="${term.name}_evaluation_${timestamp}.csv"`,
     },
   });
 }

@@ -63,6 +63,14 @@ export default function Index() {
                 評価結果一括出力
               </Link>
             </div>
+            <div className="border border-gray-300 p-2">
+              <Link
+                className="text-blue-500 hover:text-blue-800"
+                to="/admin/export/exam"
+              >
+                試験結果一括出力
+              </Link>
+            </div>
           </div>
           <div className="mt-5 flex flex-col">
             <div className="w-full rounded-t-lg border border-gray-300 bg-yellow-50 p-2">

@@ -96,7 +96,11 @@ export async function getExamScores(termId: number) {
           examinationId: exam.id,
         },
         include: {
-          user: true,
+          user: {
+            include: {
+              Job: true,
+            },
+          },
           examAnswerItem: {
             include: {
               examQuestionSelection: true,
@@ -108,28 +112,30 @@ export async function getExamScores(termId: number) {
         (acc, cur) => acc + cur.score,
         0
       );
-      return [
-        exam,
-        answers.map((answer) => {
-          const score = answer.examAnswerItem.reduce((acc, cur) => {
-            const question = exam.examQuestions.find(
-              (q) => q.id === cur.examQuestionId
+      return {
+        exam: Object.assign(exam, { fullScore: fullScore }),
+        answers: answers.map((answer) => {
+          const scores = exam.examQuestions.map((q) => {
+            const item = answer.examAnswerItem.find(
+              (a) => a.examQuestionId === q.id
             );
-            return (
-              acc +
-              (cur.examQuestionSelection.isCorrectAnswer
-                ? question?.score ?? 0
-                : 0)
-            );
-          }, 0);
+            if (!item) return 0;
+            return item.examQuestionSelection.isCorrectAnswer ? q.score : 0;
+          });
+          const totalScore = scores.reduce((acc, cur) => acc + cur, 0);
           return {
-            userId: answer.userId,
-            userName: answer.user.name,
-            score,
+            user: {
+              id: answer.userId,
+              name: answer.user.name,
+              email: answer.user.email,
+              job: answer.user.Job.name,
+            },
+            totalScore,
             fullScore,
+            scores,
           };
         }),
-      ];
+      };
     })
   );
 }
