@@ -5,6 +5,7 @@ import { StripReturnType, UnwrapPromise } from "./type_util";
 import * as yaml from "yaml";
 
 import { z } from "zod";
+import invariant from "tiny-invariant";
 export type SectionType = {
   id?: string;
   label: string;
@@ -35,8 +36,8 @@ const sectionTypeSchema = z.object({
       z.object({
         label: z.string(),
         difficulty: z.number(),
-        jobs: z.array(z.string())
-      })
+        jobs: z.array(z.string()),
+      }),
     ])
   ),
   selectionSet: z.object({
@@ -46,12 +47,12 @@ const sectionTypeSchema = z.object({
       .array(
         z.object({
           label: z.string(),
-          value: z.string()
+          value: z.string(),
         })
       )
-      .optional()
-  })
-})
+      .optional(),
+  }),
+});
 
 export const upsertAskSelectionSet = async (
   termId: number,
@@ -62,32 +63,46 @@ export const upsertAskSelectionSet = async (
   },
   selectionYaml: string
 ) => {
+  const term = await prisma.term.findUnique({
+    where: {
+      id: termId,
+    },
+    include: {
+      askSections: true,
+    },
+  });
+  invariant(term, "term not found");
   const sections = yaml.parse(selectionYaml) as SectionType[];
-
+  let index = 0;
   for (const section of sections) {
+    const currentSection = term.askSections[index];
+    index += 1;
     // Create or Update AnswerSelectionSet
     const answerSelectionSetId = await (async () => {
       if (section.selectionSet?.id) {
-        const answerSelectionSetId = Number(section.selectionSet.id) ?? 0;
         const selectionSet = await prisma.answerSelectionSet.findUnique({
           where: {
             id: Number(section.selectionSet.id),
           },
         });
         if (selectionSet) {
-          return selectionSet.id;
-        } else {
-          const gen = await prisma.answerSelectionSet.create({
+          await prisma.answerSelectionSet.update({
+            where: {
+              id: selectionSet.id,
+            },
             data: {
-              id: answerSelectionSetId,
               name: section.selectionSet.name ?? "Generated",
             },
           });
-          return gen.id;
+          return selectionSet.id;
         }
-      } else {
-        return 1;
       }
+      const gen = await prisma.answerSelectionSet.create({
+        data: {
+          name: section.selectionSet.name ?? "Generated",
+        },
+      });
+      return gen.id;
     })();
     // Create or Update AnswerSelection
     if (section.selectionSet?.selections) {
@@ -122,22 +137,26 @@ export const upsertAskSelectionSet = async (
 
     // Create Section
     const sectionRecord = await (async () => {
-      console.log(section);
-      if (section.id) {
-        const sec = await prisma.askSection.findFirst({
+      if (currentSection) {
+        await prisma.askSection.update({
           where: {
-            OR: [{ id: Number(section.id) }, { termId, label: section.label }],
+            id: currentSection.id,
+          },
+          data: {
+            label: section.label,
+            answerSelectionSetId,
           },
         });
-        if (sec) return sec;
+        return currentSection;
+      } else {
+        return await prisma.askSection.create({
+          data: {
+            termId,
+            label: section.label,
+            answerSelectionSetId,
+          },
+        });
       }
-      return await prisma.askSection.create({
-        data: {
-          termId,
-          label: section.label,
-          answerSelectionSetId,
-        },
-      });
     })();
 
     // Create AskItems

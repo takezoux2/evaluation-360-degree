@@ -48,15 +48,31 @@ export const action = async ({ request, params }: ActionArgs) => {
   );
 
   const rawCsv = formData.get("csv");
-  invariant(rawCsv, "csv is required");
-  invariant(rawCsv instanceof NodeOnDiskFile, "csv is required");
+  if (rawCsv) {
+    invariant(rawCsv, "csv is required");
+    invariant(rawCsv instanceof NodeOnDiskFile, "csv is required");
 
-  const termId = Number(formData.get("term_id"));
-  invariant(termId, "term_id is required");
-  const autoCreate = formData.get("create-user") === "on";
-  const result = await registerEvaluations(termId, rawCsv, autoCreate);
+    const termId = Number(formData.get("term_id"));
+    invariant(termId, "term_id is required");
+    const autoCreate = formData.get("create-user") === "on";
+    const result = await registerEvaluations(termId, rawCsv, autoCreate);
 
-  return json(result);
+    return json(result);
+  } else {
+    const csvStr = formData.get("csv_str");
+    invariant(csvStr, "csv_str is required");
+    invariant(typeof csvStr === "string", "csv_str is required");
+    const termId = Number(formData.get("term_id"));
+    invariant(termId, "term_id is required");
+    const autoCreate = formData.get("create-user") === "on";
+    const result = await registerEvaluations(
+      termId,
+      csvStr as string,
+      autoCreate
+    );
+
+    return json(result);
+  }
 };
 
 export default function ImportEvaluationCsv() {
@@ -77,18 +93,22 @@ export default function ImportEvaluationCsv() {
           ))}
         </div>
       )}
-      <div className="flex flex-col border border-gray-200">
-        <div className="flex flex-row bg-red-200">
-          <div className={GridClass + " w-1/5"}>行</div>
-          <div className={GridClass + " w-4/5"}>エラー</div>
-        </div>
-        {result.errors.map((e, index) => (
-          <div key={index} className="flex flex-row">
-            <div className={GridClass + " w-1/5"}>{e.row}</div>
-            <div className={GridClass + " w-4/5"}>{e.message}</div>
+      {result.errors.length > 0 ? (
+        <div className="flex flex-col border border-gray-200">
+          <div className="flex flex-row bg-red-200">
+            <div className={GridClass + " w-1/5"}>行</div>
+            <div className={GridClass + " w-4/5"}>エラー</div>
           </div>
-        ))}
-      </div>
+          {result.errors.map((e, index) => (
+            <div key={index} className="flex flex-row">
+              <div className={GridClass + " w-1/5"}>{e.row}</div>
+              <div className={GridClass + " w-4/5"}>{e.message}</div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <span>エラー無し</span>
+      )}
     </div>
   ) : (
     <></>
@@ -137,6 +157,49 @@ export default function ImportEvaluationCsv() {
         </form>
       </div>
       {uploadResult}
+      <div className="rounded-md border border-gray-300 p-4">
+        <form method="post" encType="multipart/form-data">
+          <div className="my-1">
+            <label className="block p-1 text-sm" htmlFor="term_id">
+              評価期間
+            </label>
+            <select name="term_id" className="rounded-lg bg-blue-100 px-2 py-1">
+              {terms.map((t, index) => (
+                <option key={index} value={t.id}>
+                  {t.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="my-1">
+            <label htmlFor="csv_str" className="block text-sm">
+              CSV文字列
+            </label>
+            <textarea
+              name="csv_str"
+              className="h-40 w-full rounded-lg bg-blue-100 px-2 py-1"
+            ></textarea>
+          </div>
+          <div className="my-1">
+            <input
+              type="checkbox"
+              id="create-user"
+              checked={createUser}
+              onChange={() => setCreateUser(!createUser)}
+              name="create-user"
+            />{" "}
+            未登録のユーザーを作成する
+          </div>
+          <div>
+            <button
+              className="mt-3 rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-600"
+              type="submit"
+            >
+              CSV文字列で登録
+            </button>
+          </div>
+        </form>
+      </div>
       <div className="rounded-md border border-gray-300 p-3">
         評価者,被評価者,被評価者2,...のカラムを持ったCSVをアップロードしてください。
         <br />

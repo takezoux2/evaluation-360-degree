@@ -32,7 +32,6 @@ export const loader = async ({ request, params }: LoaderArgs) => {
   const sectionYaml = yaml.stringify(
     term.askSections.map((sec) => {
       return {
-        id: sec.id,
         label: sec.label,
         questions: sec.askItems.map((item) => {
           if (item.targetJobs.length === 0) {
@@ -46,10 +45,10 @@ export const loader = async ({ request, params }: LoaderArgs) => {
         }),
         selectionSet: {
           id: sec.answerSelectionSetId,
+          name: sec.answerSelectionSet.name,
           selections: sec.answerSelectionSet.answerSelections.map(
             (selection) => {
               return {
-                id: selection.id,
                 label: selection.label,
                 value: selection.value,
               };

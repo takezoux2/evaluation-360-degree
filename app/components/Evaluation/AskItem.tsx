@@ -55,12 +55,14 @@ export const AskItemComponent = ({
   const selections = answerSelectionSet?.answerSelections.map(
     (selection, index) => {
       return (
-        <div className="basis-1/6" key={index}>
+        <div className="w-full" key={index}>
           <button
             className={
-              "w-full items-center rounded-sm border border-gray-400 px-6 py-2" +
-              (selected === index ? " bg-blue-500" : "") +
-              " whitespace-pre-wrap break-all text-sm"
+              "h-full w-full items-center rounded-md border border-gray-400 px-6 py-2" +
+              (selected === index
+                ? " bg-blue-500 hover:bg-blue-400"
+                : " hover:bg-orange-100") +
+              " whitespace-pre-wrap break-all text-sm "
             }
             onClick={() => {
               console.log("On click");
@@ -154,9 +156,7 @@ export const AskItemComponent = ({
           </div>
         </div>
       </div>
-      <div className="flex w-full flex-row items-center rounded-lg border border-gray-200 bg-white text-sm font-medium text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
-        {selections}
-      </div>
+      <div className="flex flex-row ">{selections}</div>
     </div>
   );
 };

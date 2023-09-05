@@ -317,17 +317,20 @@ export async function upsertEvaluations(
       evaluatorId: userMap.get(param.evaluator) ?? 0,
       evaluateeId: userMap.get(param.evaluatee) ?? 0,
     };
-    invariant(
-      p.evaluateeId !== p.evaluatorId,
-      `Evaluator and evaluatee are the same: ${param.evaluatee}`
-    );
-    await prisma.evaluation.upsert({
-      where: {
-        termId_evaluatorId_evaluateeId: p,
-      },
-      update: {},
-      create: p,
-    });
+    if (p.evaluateeId === p.evaluatorId) {
+      errors.push({
+        row: rowIndex,
+        message: `Evaluator and evaluatee are the same: ${param.evaluatee}`,
+      });
+    } else {
+      await prisma.evaluation.upsert({
+        where: {
+          termId_evaluatorId_evaluateeId: p,
+        },
+        update: {},
+        create: p,
+      });
+    }
   }
   return {
     affectedRows: params.length - errors.length,
