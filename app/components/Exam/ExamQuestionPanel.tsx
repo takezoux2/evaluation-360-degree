@@ -36,8 +36,6 @@ export const ExamQuestionPanel = ({
 }) => {
   const QuestionTextId = "8cjwao3lqauj";
 
-  console.log(window.outerHeight + " / " + window.innerHeight);
-
   useEffect(() => {
     // 右クリック禁止
     document.oncontextmenu = function () {
@@ -100,15 +98,32 @@ export const ExamQuestionPanel = ({
 
   const selections = examQuestion.examQuestionSelections.map(
     (selection, index) => {
+      const label = selection.label.split("\n").map((line, index, arr) => {
+        if (index === arr.length - 1) return line;
+        else
+          return (
+            <>
+              line <br />
+            </>
+          );
+      });
+      const bgColor =
+        selection.id === examQuestion.examQuestionSelectionId
+          ? "bg-green-400 hover:bg-green-500 "
+          : "hover:bg-green-100 ";
       return (
         <div
           key={index}
-          className="w-full items-center border border-black p-2 hover:cursor-pointer hover:bg-green-100"
+          className={
+            bgColor +
+            "w-full items-center border border-black p-2 hover:cursor-pointer "
+          }
           onClick={() => {
             onSelectedAnswer({ examQuestionSelectionId: selection.id });
+            examQuestion.examQuestionSelectionId = selection.id;
           }}
         >
-          {selection.label}
+          {label}
         </div>
       );
     }
