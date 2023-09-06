@@ -128,19 +128,14 @@ export const ExamQuestionPanel = ({
       );
     }
   );
-  const imageUrl =
-    examQuestion.imagePath.length === 0
-      ? ""
-      : examQuestion.imagePath.startsWith("http")
-      ? examQuestion.imagePath
-      : "https://" + examQuestion.imagePath;
-
   return (
     <div>
       <div id={QuestionTextId} className="select-none">
         {redundantText}
       </div>
-      {imageUrl.length > 0 && <img src={imageUrl} />}
+      {examQuestion.imagePath.length > 0 && (
+        <img src={examQuestion.imagePath} />
+      )}
       <div className="items.center flex w-full flex-row">{selections}</div>
     </div>
   );

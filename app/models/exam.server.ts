@@ -3,11 +3,14 @@ import { getTermsInTerm } from "./term.server";
 import invariant from "tiny-invariant";
 import { DateTime } from "luxon";
 import { StripReturnType } from "./type_util";
+import * as path from "path";
 
 export type FullExam = StripReturnType<typeof getNotAnsweredExamsInTerm>;
 export type FullExamQuestion = FullExam["exam"]["examQuestions"][number];
 
 export type ExamState = "未回答" | "回答中" | "回答済";
+
+export const ImageUrl = process.env.IMAGE_URL ?? "http://example.com";
 
 export async function getNotAnsweredExamsInTerm(userId: number) {
   const now = DateTime.local();
@@ -56,6 +59,12 @@ export async function getNotAnsweredExamsInTerm(userId: number) {
         examQuestionSelectionId: answer?.examAnswerItem.find(
           (a) => a.examQuestionId === q.id
         )?.examQuestionSelectionId,
+        // pathをURL化しておく
+        imageUrl: q.imagePath
+          ? q.imagePath.startsWith("http")
+            ? q.imagePath
+            : path.join(ImageUrl, q.imagePath)
+          : "",
       });
     });
     const state = answer
