@@ -113,6 +113,7 @@ async function seed() {
   const answerSelectionSet = await prisma.answerSelectionSet.create({
     data: {
       name: "answerSelectionSet",
+      explanation: "これはXXXです。\nLevel1はHOgehoge\nレベル2はフガフガです",
     },
   });
   for (let i = 1; i < 7; i++) {

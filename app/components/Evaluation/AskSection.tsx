@@ -12,7 +12,6 @@ export const AskSectionComponent = ({
 }) => {
   return (
     <div className="flex flex-col">
-      <div>{section.label}</div>
       {section.askItems.map((askItem) => {
         return (
           <AskItemComponent

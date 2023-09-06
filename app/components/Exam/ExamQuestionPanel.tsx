@@ -130,12 +130,12 @@ export const ExamQuestionPanel = ({
   );
   return (
     <div>
-      <div id={QuestionTextId} className="select-none">
-        {redundantText}
-      </div>
-      {examQuestion.imagePath.length > 0 && (
-        <img src={examQuestion.imagePath} />
+      {text.length > 0 && (
+        <div id={QuestionTextId} className="select-none">
+          {redundantText}
+        </div>
       )}
+      {examQuestion.imagePath.length > 0 && <img src={examQuestion.imageUrl} />}
       <div className="items.center flex w-full flex-row">{selections}</div>
     </div>
   );

@@ -119,6 +119,8 @@ model AnswerSelectionSet {
   id   Int    @id @default(autoincrement())
   name String
 
+  explanation String @db.Text
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -254,7 +256,7 @@ model ExamAnswer {
   examinationId Int
 
   examAnswerItem ExamAnswerItem[]
-  examCheatLog ExamCheatLog[]
+  examCheatLog   ExamCheatLog[]
 
   @@unique([userId, examinationId])
 }
@@ -276,10 +278,11 @@ model ExamAnswerItem {
 
   @@unique([examAnswerId, examQuestionId])
 }
+
 model ExamCheatLog {
-  id Int @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   cheatType String
-  message String @db.Text
+  message   String   @db.Text
   createdAt DateTime @default(now())
 
   examAnswer   ExamAnswer @relation(fields: [examAnswerId], references: [id])

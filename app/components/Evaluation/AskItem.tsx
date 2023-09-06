@@ -97,8 +97,8 @@ export const AskItemComponent = ({
   return (
     <div>
       <div className="flex flex-row">
-        <div className="basis-2/4">{brText}</div>
-        <div className="basis-1/4">
+        <div className=" basis-9/12">{brText}</div>
+        <div className="basis-1/12">
           {submitted &&
             (fetcher.state === "loading" ? (
               <div>Saving...</div>
@@ -106,7 +106,7 @@ export const AskItemComponent = ({
               <div className="text-green-500">✅Saved</div>
             ))}
         </div>
-        <div className="basis-1/4">
+        <div className="basis-3/12">
           <div className="relative flex items-center">
             <input
               checked={noConfidence}
@@ -144,7 +144,7 @@ export const AskItemComponent = ({
             {showTooltip && (
               <div
                 role="tooltip"
-                className="tooltip absolute bottom-6 right-0 z-10 inline-block w-[300px] rounded-lg bg-gray-900 px-1 text-sm font-medium text-white opacity-100 shadow-sm transition-opacity duration-300 dark:bg-gray-700"
+                className="tooltip absolute bottom-6 right-0 z-10 inline-block w-[300px] rounded-lg bg-gray-900 px-1 py-2 text-sm font-medium text-white opacity-100 shadow-sm transition-opacity duration-300 dark:bg-gray-700"
               >
                 評価する人とあまり接点がなかったり、業務上で質問項目に関して関わったことがないなど、回答に自信がない場合にこちらにチェックをお願いします。
                 <br />
