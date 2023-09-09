@@ -31,7 +31,10 @@ export async function action({ params, request }: LoaderArgs) {
       "受験者 職種",
       "得点",
       ...exam.exam.examQuestions.map((q, index) => {
-        return `第${index + 1}問 ${q.text.substring(0, 5)}...`;
+        return `第${index + 1}問 得点`;
+      }),
+      ...exam.exam.examQuestions.map((q, index) => {
+        return `第${index + 1}問 回答 ${q.text.substring(0, 5)}...`;
       }),
     ]);
     exam.answers.forEach((answer) => {
@@ -40,7 +43,8 @@ export async function action({ params, request }: LoaderArgs) {
         answer.user.email,
         answer.user.job,
         answer.totalScore.toString(),
-        ...answer.scores.map((s) => s.toString()),
+        ...answer.scores.map((s) => s.score.toString()),
+        ...answer.scores.map((s) => s.label.toString()),
       ]);
     });
   }

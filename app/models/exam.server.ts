@@ -133,10 +133,20 @@ export async function getExamScores(termId: number) {
             const item = answer.examAnswerItem.find(
               (a) => a.examQuestionId === q.id
             );
-            if (!item) return 0;
-            return item.examQuestionSelection.isCorrectAnswer ? q.score : 0;
+            if (!item)
+              return {
+                score: 0,
+                label: "--",
+              };
+            const score = item.examQuestionSelection.isCorrectAnswer
+              ? q.score
+              : 0;
+            return {
+              score,
+              label: item.examQuestionSelection.label,
+            };
           });
-          const totalScore = scores.reduce((acc, cur) => acc + cur, 0);
+          const totalScore = scores.reduce((acc, cur) => acc + cur.score, 0);
           return {
             user: {
               id: answer.userId,
