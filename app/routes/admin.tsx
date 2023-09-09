@@ -74,6 +74,19 @@ export default function Index() {
           </div>
           <div className="mt-5 flex flex-col">
             <div className="w-full rounded-t-lg border border-gray-300 bg-yellow-50 p-2">
+              エラー確認
+            </div>
+            <div className="border border-gray-300 p-2">
+              <Link
+                className="text-blue-500 hover:text-blue-800"
+                to="/admin/check/eval_count"
+              >
+                被評価者数/評価者数確認
+              </Link>
+            </div>
+          </div>
+          <div className="mt-5 flex flex-col">
+            <div className="w-full rounded-t-lg border border-gray-300 bg-yellow-50 p-2">
               データ登録/編集
             </div>
             <div className="border border-gray-300 p-2">

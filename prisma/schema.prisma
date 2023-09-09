@@ -15,6 +15,8 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  isRetired Boolean @default(false)
+
   password Password?
 
   SnsLink              SnsLink?
@@ -26,6 +28,7 @@ model User {
   ExamAnswer           ExamAnswer[]
   PersonalTermOverride PersonalTermOverride?
 }
+
 
 model Password {
   id   Int    @id @default(autoincrement())
