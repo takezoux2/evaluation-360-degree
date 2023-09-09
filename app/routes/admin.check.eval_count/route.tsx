@@ -1,4 +1,4 @@
-import { json, type V2_MetaFunction } from "@remix-run/node";
+import { json, LoaderArgs, type V2_MetaFunction } from "@remix-run/node";
 import {
   Form,
   Link,
@@ -9,19 +9,35 @@ import {
 import { useState } from "react";
 import invariant from "tiny-invariant";
 import { countUpEvaluattorAndEvaluatee } from "~/models/check_eval.server";
+import {
+  getLatestTerms,
+  getNotEndTerms,
+  getTermsInTerm,
+} from "~/models/term.server";
 
 export const meta: V2_MetaFunction = () => [{ title: "被評価数チェック" }];
 
-export const loader = async () => {
-  const counts = await countUpEvaluattorAndEvaluatee();
-
+export const loader = async ({ params, request }: LoaderArgs) => {
+  const url = new URL(request.url);
+  const termIdParam = url.searchParams.get("termId");
+  const termId = await (async () => {
+    if (termIdParam && Number(termIdParam)) {
+      return Number(termIdParam);
+    }
+    const terms = await getLatestTerms(1);
+    return terms[0]?.id ?? 1;
+  })();
+  const counts = await countUpEvaluattorAndEvaluatee(termId);
+  const terms = await getNotEndTerms();
   return json({
+    termId: termId,
     counts: counts,
+    terms,
   });
 };
 
 export default function CheckEvalCount() {
-  const { counts } = useLoaderData<typeof loader>();
+  const { counts, termId, terms } = useLoaderData<typeof loader>();
   const [showRetired, setShowRetired] = useState(true);
   const [evaluatorThreshold, setEvaluatorThreshold] = useState(1);
   const [evaluateeThreshold, setEvaluateeThreshold] = useState(3);
@@ -58,6 +74,27 @@ export default function CheckEvalCount() {
     });
   return (
     <div className="flex flex-col">
+      <div className="rounded-lg border p-2">
+        <form method="get">
+          <select
+            defaultValue={termId}
+            className="bg-green-100 px-2 py-1"
+            name="termId"
+          >
+            {terms.map((t, index) => (
+              <option key={index} value={t.id}>
+                {t.name}
+              </option>
+            ))}
+          </select>
+          <button
+            className="ml-3 rounded-lg border bg-cyan-400 px-3 py-1"
+            type="submit"
+          >
+            評価期間変更
+          </button>
+        </form>
+      </div>
       <div className="rounded-lg border">
         <div className="flex flex-col p-2">
           <div className="font-bold">エラー条件</div>

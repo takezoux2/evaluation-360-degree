@@ -1,12 +1,15 @@
 import { prisma } from "~/db.server";
 
-export async function countUpEvaluattorAndEvaluatee() {
+export async function countUpEvaluattorAndEvaluatee(termId: number) {
   // count evaluation table group by evaluatorId
   const evaluatorCounts = await prisma.evaluation
     .groupBy({
       by: ["evaluatorId"],
       _count: {
         evaluatorId: true,
+      },
+      where: {
+        termId,
       },
     })
     .then(
