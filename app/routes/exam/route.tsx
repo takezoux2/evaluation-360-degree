@@ -29,7 +29,7 @@ import { ExamQuestionPanel } from "~/components/Exam/ExamQuestionPanel";
 import { ExamAnswerPanel } from "~/components/Exam/ExamAnswerPanel";
 import ExamPanel from "~/components/Exam/ExamPanel";
 
-export const meta: V2_MetaFunction = () => [{ title: "Remix Notes" }];
+export const meta: V2_MetaFunction = () => [{ title: "情報技術試験" }];
 
 export const action = async ({ request }: ActionArgs) => {
   const user = await requireUser(request);

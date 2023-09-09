@@ -20,8 +20,6 @@ import invariant from "tiny-invariant";
 import { getLatestTerms, getNotEndTerms } from "~/models/term.server";
 import { useState } from "react";
 
-export const meta: V2_MetaFunction = () => [{ title: "Remix Notes" }];
-
 export const handle = {
   breadcrumb: () => <Link to="/admin/export/evaluation">評価出力</Link>,
 };

@@ -13,11 +13,7 @@ import invariant from "tiny-invariant";
 import { regiterUsers } from "./upload_csv.server";
 import { getJobs } from "~/models/job.server";
 
-export const meta: V2_MetaFunction = () => [{ title: "Remix Notes" }];
-
-export const handle = {
-  breadcrumb: () => <Link to="/admin/import/users">Import Users</Link>,
-};
+export const meta: V2_MetaFunction = () => [{ title: "ユーザーimport" }];
 
 export const loader = async () => {
   const jobs = await getJobs();

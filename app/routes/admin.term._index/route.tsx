@@ -3,7 +3,7 @@ import { Link, Outlet, useLoaderData } from "@remix-run/react";
 import { getLatestTerms } from "~/models/term.server";
 import { toHumanFriendly } from "~/time_util";
 
-export const meta: V2_MetaFunction = () => [{ title: "Remix Notes" }];
+export const meta: V2_MetaFunction = () => [{ title: "評価期間編集" }];
 
 export const loader = async ({ request }: LoaderArgs) => {
   const terms = await getLatestTerms(30);

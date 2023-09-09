@@ -15,7 +15,7 @@ import { getNotEndTerms } from "~/models/term.server";
 import { registerEvaluations } from "./upload_csv.server";
 import { useState } from "react";
 
-export const meta: V2_MetaFunction = () => [{ title: "Remix Notes" }];
+export const meta: V2_MetaFunction = () => [{ title: "評価一覧import" }];
 
 export const handle = {
   breadcrumb: () => (

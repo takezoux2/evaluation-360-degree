@@ -19,11 +19,7 @@ import { upsertAskSelectionSet } from "~/models/term_update.server";
 import Editor from "@monaco-editor/react";
 import { useState } from "react";
 
-export const meta: V2_MetaFunction = () => [{ title: "Remix Notes" }];
-
-export const handle = {
-  breadcrumb: () => <span>評価期間編集</span>,
-};
+export const meta: V2_MetaFunction = () => [{ title: "評価期間編集" }];
 
 export const loader = async ({ request, params }: LoaderArgs) => {
   const term = await getTermById(Number(params["termId"] ?? "0"));

@@ -20,7 +20,7 @@ import invariant from "tiny-invariant";
 import { getLatestTerms, getNotEndTerms } from "~/models/term.server";
 import { useState } from "react";
 
-export const meta: V2_MetaFunction = () => [{ title: "Remix Notes" }];
+export const meta: V2_MetaFunction = () => [{ title: "結果DL" }];
 
 export const loader = async () => {
   const terms = await getLatestTerms();

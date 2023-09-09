@@ -7,7 +7,7 @@ import {
 import { Link, Outlet, useLoaderData, useMatches } from "@remix-run/react";
 import { requireAdminUser, requireUser } from "~/session.server";
 
-export const meta: V2_MetaFunction = () => [{ title: "Remix Notes" }];
+export const meta: V2_MetaFunction = () => [{ title: "管理Top" }];
 
 export const loader = async ({ params, request }: LoaderArgs) => {
   const user = await requireAdminUser(request);
