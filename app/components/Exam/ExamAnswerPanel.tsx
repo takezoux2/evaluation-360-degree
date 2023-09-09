@@ -16,7 +16,17 @@ export function ExamAnswerPanel({
   const fetcher = useFetcher();
   const [questionIndex, setQuestionIndex] = useState(0);
   const question = selectedExam.exam.examQuestions[questionIndex];
-
+  if (!question) {
+    return (
+      <div className="p-4">
+        全問回答しました。
+        <br />
+        これで情報処理試験は終了です。
+        <br />
+        お疲れ様でした。
+      </div>
+    );
+  }
   return (
     <div className="flex flex-col">
       <div className="p-1">
@@ -68,7 +78,7 @@ export function ExamAnswerPanel({
               replace: true,
             });
             setQuestionIndex((i) => {
-              return i < selectedExam.exam.examQuestions.length - 1 ? i + 1 : i;
+              return i + 1;
             });
           }}
         />

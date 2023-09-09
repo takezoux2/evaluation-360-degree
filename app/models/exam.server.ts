@@ -67,11 +67,16 @@ export async function getNotAnsweredExamsInTerm(userId: number) {
           : "",
       });
     });
-    const state = answer
-      ? answer.endedAt.getTime() < now.toJSDate().getTime()
-        ? "回答済"
-        : "回答中"
-      : "未回答";
+    const state = (() => {
+      if (!answer) return "未回答";
+      if (answer.endedAt.getTime() < now.toJSDate().getTime()) {
+        return "回答済";
+      }
+      if (answer.finishedAt) {
+        return "回答済";
+      }
+      return "回答中";
+    })();
     return {
       term: term,
       exam: Object.assign(exam, {
@@ -227,6 +232,26 @@ export async function updateAnswer({
       examQuestionSelectionId,
     },
   });
+  const answerItemCount = await prisma.examAnswerItem.count({
+    where: {
+      examAnswerId,
+    },
+  });
+  const questionCount = await prisma.examQuestion.count({
+    where: {
+      examinationId: examAnswer.examinationId,
+    },
+  });
+  if (answerItemCount === questionCount) {
+    await prisma.examAnswer.update({
+      where: {
+        id: examAnswerId,
+      },
+      data: {
+        finishedAt: now.toJSDate(),
+      },
+    });
+  }
 
   return true;
 }

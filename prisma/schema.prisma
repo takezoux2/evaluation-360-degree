@@ -244,10 +244,13 @@ model ExamAnswer {
 
   // 回答開始時間
   startedAt DateTime
-  // 回答終了時間
+  // 回答制限時間
   endedAt   DateTime
 
   isCheater Boolean
+
+  // 回答完了時間
+  finishedAt DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

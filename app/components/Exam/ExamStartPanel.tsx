@@ -16,6 +16,8 @@ export const ExamStartPanel = (props: {
         <span className=" text-red-500">
           制限時間をすぎると回答できなくなります。
         </span>
+        <br />
+        全問回答完了すると試験終了となります。
       </div>
       <div className="p-3 text-2xl">試験を開始しますか？</div>
       <div className="px-10 py-3">

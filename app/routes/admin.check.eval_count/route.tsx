@@ -17,7 +17,7 @@ import {
 
 export const meta: V2_MetaFunction = () => [{ title: "被評価数チェック" }];
 
-export const loader = async ({ params, request }: LoaderArgs) => {
+export const loader = async ({ request }: LoaderArgs) => {
   const url = new URL(request.url);
   const termIdParam = url.searchParams.get("termId");
   const termId = await (async () => {
@@ -43,6 +43,19 @@ export default function CheckEvalCount() {
   const [evaluateeThreshold, setEvaluateeThreshold] = useState(3);
 
   const rows = counts
+    .filter((c) => {
+      if (showRetired) {
+        return true;
+      } else {
+        return c.isRetired === false;
+      }
+    })
+    .filter((c) => {
+      return (
+        c.evaluatorCount < evaluatorThreshold ||
+        c.evaluateeCount < evaluateeThreshold
+      );
+    })
     .map((c) => {
       return {
         id: c.id,
@@ -58,19 +71,6 @@ export default function CheckEvalCount() {
           isRetired: c.isRetired ? "bg-red-200" : "",
         },
       };
-    })
-    .filter((c) => {
-      if (showRetired) {
-        return true;
-      } else {
-        return c.isRetired === false;
-      }
-    })
-    .filter((c) => {
-      return (
-        c.evaluatorCount < evaluatorThreshold ||
-        c.evaluateeCount < evaluateeThreshold
-      );
     });
   return (
     <div className="flex flex-col">
