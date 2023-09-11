@@ -41,7 +41,8 @@ export default function CheckEvalCount() {
   const [showRetired, setShowRetired] = useState(true);
   const [evaluatorThreshold, setEvaluatorThreshold] = useState(1);
   const [evaluateeThreshold, setEvaluateeThreshold] = useState(3);
-
+  const [evaluatorUpperThreshold, setEvaluatorUpperThreshold] = useState(5);
+  const [evaluateeUpperThreshold, setEvaluateeUpperThreshold] = useState(15);
   const rows = counts
     .filter((c) => {
       if (showRetired) {
@@ -53,7 +54,9 @@ export default function CheckEvalCount() {
     .filter((c) => {
       return (
         c.evaluatorCount < evaluatorThreshold ||
-        c.evaluateeCount < evaluateeThreshold
+        c.evaluateeCount < evaluateeThreshold ||
+        c.evaluatorCount > evaluatorUpperThreshold ||
+        c.evaluateeCount > evaluateeUpperThreshold
       );
     })
     .map((c) => {
@@ -65,9 +68,17 @@ export default function CheckEvalCount() {
         isRetired: c.isRetired,
         className: {
           evaluatorCount:
-            c.evaluatorCount < evaluatorThreshold ? "bg-red-200" : "",
+            c.evaluatorCount < evaluatorThreshold
+              ? "bg-red-200"
+              : c.evaluatorCount > evaluatorUpperThreshold
+              ? "bg-red-100"
+              : "",
           evaluateeCount:
-            c.evaluateeCount < evaluateeThreshold ? "bg-red-200" : "",
+            c.evaluateeCount < evaluateeThreshold
+              ? "bg-red-200"
+              : c.evaluateeCount > evaluateeUpperThreshold
+              ? "bg-red-100"
+              : "",
           isRetired: c.isRetired ? "bg-red-200" : "",
         },
       };
@@ -98,29 +109,55 @@ export default function CheckEvalCount() {
       <div className="rounded-lg border">
         <div className="flex flex-col p-2">
           <div className="font-bold">エラー条件</div>
-          <div className="flex w-64 flex-row border">
-            <div className="w-2/4">評価される数が</div>
-            <input
-              type="number"
-              className="w-1/4 px-2 text-right"
-              value={evaluateeThreshold}
-              onChange={(e) => {
-                setEvaluateeThreshold(parseInt(e.target.value));
-              }}
-            />
-            <div className="w-1/4">未満</div>
+          <div className="flex w-96 flex-row border">
+            <div className="flex w-64 flex-row">
+              <div className="w-32">評価される数が</div>
+              <input
+                type="number"
+                className="w-16 px-2 text-right"
+                value={evaluateeThreshold}
+                onChange={(e) => {
+                  setEvaluateeThreshold(parseInt(e.target.value));
+                }}
+              />
+              <div className="w-16">未満</div>
+            </div>
+            <div className="flex w-32 flex-row">
+              <input
+                type="number"
+                className="w-16 px-2 text-right"
+                value={evaluateeUpperThreshold}
+                onChange={(e) => {
+                  setEvaluateeUpperThreshold(parseInt(e.target.value));
+                }}
+              />
+              <div className="w-16">より多い</div>
+            </div>
           </div>
-          <div className="flex w-64 flex-row border">
-            <div className="w-2/4">評価する数が</div>
-            <input
-              type="number"
-              className="w-1/4 px-2 text-right"
-              value={evaluatorThreshold}
-              onChange={(e) => {
-                setEvaluatorThreshold(parseInt(e.target.value));
-              }}
-            />
-            <div className="w-1/4">未満</div>
+          <div className="flex w-96 flex-row border">
+            <div className="flex w-64 flex-row">
+              <div className="w-2/4">評価する数が</div>
+              <input
+                type="number"
+                className="w-1/4 px-2 text-right"
+                value={evaluatorThreshold}
+                onChange={(e) => {
+                  setEvaluatorThreshold(parseInt(e.target.value));
+                }}
+              />
+              <div className="w-1/4">未満</div>
+            </div>
+            <div className="flex w-32 flex-row">
+              <input
+                type="number"
+                className="w-16 px-2 text-right"
+                value={evaluatorUpperThreshold}
+                onChange={(e) => {
+                  setEvaluatorUpperThreshold(parseInt(e.target.value));
+                }}
+              />
+              <div className="w-16">より多い</div>
+            </div>
           </div>
           <div className="flex w-64 flex-row border">
             <div className="w-2/4">退職者</div>
