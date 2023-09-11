@@ -22,26 +22,36 @@ export async function registerEvaluations(
     header: false,
     skipEmptyLines: true,
   });
-  const evaluatees = new Map<string, string[]>();
+  const userToUsers = new Map<string, string[]>();
   // loop foreach row for papaparse without header
   for (const row of csv.data) {
-    if (row.length === 0 || row[0] === "評価者") continue;
+    if (row.length === 0 || row[0].includes("評価者")) continue;
     const tees = row.slice(1).filter((v) => v !== "");
     if (tees.length === 0) continue;
-    const list = evaluatees.get(row[0]) ?? [];
+    const list = userToUsers.get(row[0]) ?? [];
     list.push(...tees);
-    evaluatees.set(row[0], list);
+    userToUsers.set(row[0], list);
   }
-
-  const pairs = Array.from(evaluatees.entries()).flatMap(
-    ([evaluator, evaluatees]) => {
-      const uniqued = Array.from(new Set(evaluatees));
+  // デフォルトは１列目が被評価者
+  // １列目が評価者と指定がある場合は、１列目が評価者になる
+  const mode =
+    csv.data.length > 0 && csv.data[0][0] === "評価者"
+      ? "評価者ベース"
+      : "被評価者ベース";
+  const pairs = Array.from(userToUsers.entries()).flatMap(([user, users]) => {
+    const uniqued = Array.from(new Set(users));
+    if (mode === "評価者ベース") {
       return uniqued.map((evaluatee) => ({
-        evaluator,
+        evaluator: user,
         evaluatee,
       }));
+    } else {
+      return uniqued.map((evaluator) => ({
+        evaluator,
+        evaluatee: user,
+      }));
     }
-  );
+  });
 
   return upsertEvaluations(termId, pairs, autoCreate);
 }
@@ -50,10 +60,10 @@ export function getSampleCsv() {
   return Papa.unparse(
     [
       {
-        [HeaderMapping.get("evaluator") ?? "評価者"]: "Yamada Taro",
-        [HeaderMapping.get("evaluatee") ?? "被評価者"]: "スズキイチロウ",
-        被評価者2: "スズキ治郎",
-        被評価者3: "saburo.suzuki@leverages.jp",
+        [HeaderMapping.get("evaluator") ?? "被評価者"]: "Yamada Taro",
+        [HeaderMapping.get("evaluatee") ?? "評価者"]: "スズキイチロウ",
+        評価者2: "スズキ治郎",
+        評価者3: "saburo.suzuki@leverages.jp",
       },
     ],
     { header: true }

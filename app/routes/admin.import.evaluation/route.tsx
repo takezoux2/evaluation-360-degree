@@ -201,19 +201,19 @@ export default function ImportEvaluationCsv() {
         </form>
       </div>
       <div className="rounded-md border border-gray-300 p-3">
-        評価者,被評価者,被評価者2,...のカラムを持ったCSVをアップロードしてください。
+        被評価者,評価者,評価者2,...のカラムを持ったCSVをアップロードしてください。
         <br />
         emailまたは、氏名で指定できます。
         <br />
         emailで登録の場合は、自動でユーザーレコード作成が可能です
         <br />
-        被評価者数は1行で複数同時登録できます。また、評価者毎に登録する人数が違っても問題ありません。
+        評価者は1行で複数同時登録できます。また、評被価者毎に登録する人数が違っても問題ありません。
         <div className="bg-blue-50">
           <div className="ml-1 mt-1 inline-block bg-blue-100 px-1 text-sm">
             sample.csv
           </div>
 
-          <pre className="block">{`評価者,被評価者,被評価者2, ...
+          <pre className="block">{`被評価者,評価者,評価者2, ...
 hoge@example.com,fuga@example.com, bbb@example.com, ccc@example.com, ddd@example.com
 山田太郎,鈴木花子, bbb@example.com
 `}</pre>
