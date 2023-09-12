@@ -26,13 +26,13 @@ export const EvaluationComponent = ({
   return (
     <div className="flex flex-col">
       <div className="flex flex-row justify-between">
-        <div className="p-3">{evaluation.evaluatee.name}さんの360度評価</div>
+        <div className="p-3">{evaluation.evaluatee.name}さんの360度アンケート</div>
         <div className="p-3">
           <button
             onClick={() => setShowTooltip((b) => !b)}
             className="rounded-lg bg-emerald-300 p-2 text-sm text-black"
           >
-            評価の詳細📖
+            アンケートの詳細📖
           </button>
           {showToolTip && (
             <div className="tooltip absolute right-5 z-10 w-[400px] rounded-lg border-green-800 bg-emerald-100 p-2">

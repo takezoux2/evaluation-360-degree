@@ -1,28 +1,36 @@
-import type { V2_MetaFunction } from "@remix-run/node";
-import { useOptionalUser } from "~/utils";
+import { json, type LoaderArgs, type V2_MetaFunction } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
+import { getUser } from "~/session.server";
 
-export const meta: V2_MetaFunction = () => [{ title: "評価システム" }];
+export const meta: V2_MetaFunction = () => [{ title: "アンケートシステム" }];
+
+export const loader = async ({ request }: LoaderArgs) => {
+  const user = await getUser(request);
+  return json({ isAdmin: user?.isAdmin ?? false });
+};
 
 export default function Index() {
-  const user = useOptionalUser();
+  const { isAdmin } = useLoaderData<typeof loader>();
   const buttonClassName = "bg-green-300 border-black p-2 rounded-md";
   return (
     <main className="relative flex min-h-screen flex-col bg-white p-2">
       <div className="m-2">
         <a className={buttonClassName} href="/evaluation">
-          評価
+          360度アンケート
         </a>
       </div>
       <div className="m-2">
         <a className={buttonClassName} href="/exam">
-          試験
+          情報科学試験
         </a>
       </div>
-      <div className="m-2">
-        <a className={buttonClassName} href="/admin">
-          管理ページ
-        </a>
-      </div>
+      {isAdmin && (
+        <div className="m-2">
+          <a className={buttonClassName} href="/admin">
+            管理ページ
+          </a>
+        </div>
+      )}
     </main>
   );
 }

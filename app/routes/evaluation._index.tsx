@@ -7,7 +7,7 @@ import { getListEvaluations, ListEvaluation } from "~/models/evaluation.server";
 import { getTerms } from "~/models/term.server";
 import { requireUser } from "~/session.server";
 
-export const meta: V2_MetaFunction = () => [{ title: "360度評価" }];
+export const meta: V2_MetaFunction = () => [{ title: "360度アンケート" }];
 
 export const loader = async ({ params, request }: LoaderArgs) => {
   const user = await requireUser(request);
@@ -30,7 +30,7 @@ export default function Index() {
   const evaluationComponent = evaluation ? (
     <EvaluationComponent evaluation={evaluation}></EvaluationComponent>
   ) : (
-    <div>評価対象を選択してください</div>
+    <div>アンケート対象を選択してください</div>
   );
   const termComponent =
     terms.length > 0 ? (
@@ -50,7 +50,9 @@ export default function Index() {
       <header>
         <div className="flex flex-row items-center justify-between p-1">
           <div className="basis-3/6">
-            <h2 className="px-2 text-2xl">360度評価システム</h2>
+            <h2 className="px-2 text-2xl">
+              <a href="/">360度アンケートシステム</a>
+            </h2>
           </div>
           <div className="basis-2/6 p-2 text-right">
             {user.name}:{user.Job.name}
