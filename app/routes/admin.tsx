@@ -27,7 +27,7 @@ export default function Index() {
         <div className="flex">
           <div className="w-3/4">
             <nav className="flex p-3" aria-label="Breadcrumb">
-              管理ページ
+              <a href="/">管理ページ</a>
             </nav>
           </div>
           <div className="w-1/4 p-3 text-right">{user.name}</div>

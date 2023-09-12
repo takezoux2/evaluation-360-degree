@@ -23,9 +23,6 @@ export async function action({ params, request }: LoaderArgs) {
 
   const now = DateTime.now();
   const exportTime = now.toFormat("yyyy/MM/dd HH:mm:ss");
-  const a = 1;
-  // zero padding
-  const a2 = a.toString().padStart(2, "0");
   const rows = [
     ["評価期間", term.name],
     ["ファイル出力日", exportTime],

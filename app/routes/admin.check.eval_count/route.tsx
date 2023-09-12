@@ -39,10 +39,10 @@ export const loader = async ({ request }: LoaderArgs) => {
 export default function CheckEvalCount() {
   const { counts, termId, terms } = useLoaderData<typeof loader>();
   const [showRetired, setShowRetired] = useState(true);
-  const [evaluatorThreshold, setEvaluatorThreshold] = useState(1);
-  const [evaluateeThreshold, setEvaluateeThreshold] = useState(3);
-  const [evaluatorUpperThreshold, setEvaluatorUpperThreshold] = useState(5);
-  const [evaluateeUpperThreshold, setEvaluateeUpperThreshold] = useState(15);
+  const [evaluatorThreshold, setEvaluatorThreshold] = useState(0);
+  const [evaluateeThreshold, setEvaluateeThreshold] = useState(2);
+  const [evaluatorUpperThreshold, setEvaluatorUpperThreshold] = useState(20);
+  const [evaluateeUpperThreshold, setEvaluateeUpperThreshold] = useState(5);
   const rows = counts
     .filter((c) => {
       if (showRetired) {

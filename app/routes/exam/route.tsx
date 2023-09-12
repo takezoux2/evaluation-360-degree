@@ -155,7 +155,9 @@ export default function Exam() {
       <header>
         <div className="flex flex-row items-center justify-between p-1">
           <div className="basis-3/6">
-            <h2 className="px-2 text-2xl">情報科学 筆記試験</h2>
+            <h2 className="px-2 text-2xl">
+              <a href="/">情報科学試験</a>
+            </h2>
           </div>
           <div className="basis-2/6 p-2 text-right">
             {user.name}:{user.Job.name}
