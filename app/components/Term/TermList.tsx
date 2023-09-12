@@ -17,8 +17,8 @@ export const TermList = ({
 }: TermListProps) => {
   const list = terms.map((term, index) => {
     const evals = evaluations.filter((e) => e.termId === term.id);
-    const endAt = new Date(term.endAt);
-    const endAtLabel = toUntil(endAt);
+    const endAt = DateTime.fromISO(term.endAt);
+    const endAtLabel = toUntil(endAt.toJSDate());
     return (
       <div key={"t" + index} className="w-full">
         <div className="flex flex-col rounded-lg border">
