@@ -51,9 +51,9 @@ export function ExamPanel({ selectedExam }: { selectedExam: FullExam | null }) {
           />
         );
       case "回答済":
-        return <div>試験は終了しました。おつかれ様でした</div>;
+        return <div>スキルテストは終了しました。おつかれ様でした</div>;
       default:
-        return <div>試験を選択してください</div>;
+        return <div>スキルテストを選択してください</div>;
     }
   })();
 }

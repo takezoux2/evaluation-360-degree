@@ -21,15 +21,9 @@ import {
   updateAnswer,
 } from "~/models/exam.server";
 import { requireUser } from "~/session.server";
-import { DateTime } from "luxon";
-import { StripReturnType } from "~/models/type_util";
-import CountDownTimer from "~/components/CountDownTimer";
-import { ExamStartPanel } from "~/components/Exam/ExamStartPanel";
-import { ExamQuestionPanel } from "~/components/Exam/ExamQuestionPanel";
-import { ExamAnswerPanel } from "~/components/Exam/ExamAnswerPanel";
 import ExamPanel from "~/components/Exam/ExamPanel";
 
-export const meta: V2_MetaFunction = () => [{ title: "情報技術試験" }];
+export const meta: V2_MetaFunction = () => [{ title: "スキルテスト" }];
 
 export const action = async ({ request }: ActionArgs) => {
   const user = await requireUser(request);
@@ -147,7 +141,7 @@ export default function Exam() {
         );
       })
     ) : (
-      <span>現在受験可能な試験はありません</span>
+      <span>現在受験可能なスキルテストはありません</span>
     );
 
   return (
@@ -156,7 +150,7 @@ export default function Exam() {
         <div className="flex flex-row items-center justify-between p-1">
           <div className="basis-3/6">
             <h2 className="px-2 text-2xl">
-              <a href="/">情報科学試験</a>
+              <a href="/">スキルテスト</a>
             </h2>
           </div>
           <div className="basis-2/6 p-2 text-right">

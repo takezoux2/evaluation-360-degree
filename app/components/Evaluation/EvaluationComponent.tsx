@@ -27,7 +27,7 @@ export const EvaluationComponent = ({
     <div className="flex flex-col">
       <div className="flex flex-row justify-between">
         <div className="p-3">
-          {evaluation.evaluatee.name}さんの360度アンケート
+          {evaluation.evaluatee.name}さんの180度アンケート
         </div>
         <div className="p-3">
           <button

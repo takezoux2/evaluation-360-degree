@@ -61,7 +61,7 @@ export default function ImportEvaluationCsv() {
               className="mt-3 rounded bg-green-500 px-4 py-2 font-bold text-white hover:bg-green-600"
               type="submit"
             >
-              試験結果をダウンロード
+              スキルテスト結果をダウンロード
             </button>
           </div>
         </Form>

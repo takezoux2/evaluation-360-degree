@@ -21,7 +21,7 @@ export function ExamAnswerPanel({
       <div className="p-4">
         全問回答しました。
         <br />
-        これで情報処理試験は終了です。
+        これでスキルテストは終了です。
         <br />
         お疲れ様でした。
       </div>

@@ -22,12 +22,12 @@ export default function Index() {
     <main className="relative flex min-h-screen flex-col bg-white p-2">
       <div className="m-2">
         <a className={buttonClassName} href="/evaluation">
-          360度アンケート
+          180度アンケート
         </a>
       </div>
       <div className="m-2">
         <a className={buttonClassName} href="/exam">
-          情報科学試験
+          スキルテスト
         </a>
       </div>
       {isAdmin && (
