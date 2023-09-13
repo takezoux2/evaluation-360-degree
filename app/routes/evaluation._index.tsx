@@ -1,5 +1,5 @@
 import { json, LoaderArgs, type V2_MetaFunction } from "@remix-run/node";
-import { Form, Link, Outlet, useLoaderData } from "@remix-run/react";
+import { Form, useLoaderData } from "@remix-run/react";
 import { useState } from "react";
 import { EvaluationComponent } from "~/components/Evaluation/EvaluationComponent";
 import { TermList } from "~/components/Term/TermList";

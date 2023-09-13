@@ -5,8 +5,14 @@ import { getUser } from "~/session.server";
 export const meta: V2_MetaFunction = () => [{ title: "アンケートシステム" }];
 
 export const loader = async ({ request }: LoaderArgs) => {
-  const user = await getUser(request);
-  return json({ isAdmin: user?.isAdmin ?? false });
+  try {
+    const user = await getUser(request);
+    return json({ isAdmin: user?.isAdmin ?? false });
+  } catch (e) {
+    console.error(e);
+
+    return json({ isAdmin: false });
+  }
 };
 
 export default function Index() {
