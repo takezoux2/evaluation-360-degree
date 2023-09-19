@@ -97,6 +97,14 @@ export default function Index() {
                 評価期間編集
               </Link>
             </div>
+            <div className="border border-gray-300 p-2">
+              <Link
+                className="text-blue-500 hover:text-blue-800"
+                to="/admin/users"
+              >
+                ユーザー一覧
+              </Link>
+            </div>
           </div>
         </div>
         <div className="w-3/4">
