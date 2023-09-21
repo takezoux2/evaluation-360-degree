@@ -322,7 +322,7 @@ export default function Users() {
             value={DateTime.local().zoneName ?? ""}
           />
           <input type="hidden" name="type" value={ActionTypes.extendTermEnd} />
-          <input type="hidden" name="termId" value={termId + ""} />
+          <input type="hidden" name="termId" value={termData.termId + ""} />
           <button
             type="submit"
             className="rounded-md border bg-green-200 p-2 hover:bg-green-300"
