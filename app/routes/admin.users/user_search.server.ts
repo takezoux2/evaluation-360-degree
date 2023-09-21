@@ -9,15 +9,23 @@ export const searchUser = async (
       keywords.length === 0
         ? undefined
         : {
-            OR: [
+            AND: [
               ...keywords.map((keyword) => ({
-                name: { contains: keyword },
-              })),
-              ...keywords.map((keyword) => ({
-                email: { contains: keyword },
+                OR: [
+                  {
+                    name: { contains: keyword },
+                  },
+                  {
+                    email: { contains: keyword },
+                  },
+                  {
+                    Job: { name: { contains: keyword } },
+                  },
+                ],
               })),
             ],
           },
+    include: { Job: true },
     skip: args.offset,
     take: args.limit,
   });
