@@ -65,7 +65,6 @@ export const AskItemComponent = ({
               " whitespace-pre-wrap break-all text-sm "
             }
             onClick={() => {
-              console.log("On click");
               askItem.answerItem = {
                 value: selection.value,
                 noConfidence: askItem.answerItem?.noConfidence || false,
@@ -110,17 +109,15 @@ export const AskItemComponent = ({
           <div className="relative flex items-center">
             <input
               checked={noConfidence}
+              disabled={fetcher.state === "loading"}
               onChange={(e) => {
                 askItem.answerItem = {
                   value: askItem.answerItem?.value ?? 1,
-                  noConfidence: askItem.answerItem?.noConfidence || false,
+                  noConfidence: !noConfidence,
                 };
                 setNoConfidence(!noConfidence);
                 setSubmitted(true);
-                updateAnswer(
-                  askItem.answerItem?.value + "",
-                  !askItem.answerItem?.noConfidence
-                );
+                updateAnswer(askItem.answerItem?.value + "", !noConfidence);
               }}
               id="checked-checkbox"
               type="checkbox"

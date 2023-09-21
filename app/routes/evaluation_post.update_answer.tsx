@@ -12,6 +12,13 @@ export const action = async ({ request }: ActionArgs) => {
   const value = Number(formData.get("value"));
   const noConfidence = formData.get("noConfidence") === "true";
   const actionUserId = user.id;
+  console.log({
+    actionUserId,
+    evaluationId,
+    askItemId,
+    value,
+    noConfidence,
+  });
 
   updateAnswerItem({
     actionUserId,
