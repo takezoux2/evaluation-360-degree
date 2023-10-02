@@ -4,15 +4,8 @@ import {
   LoaderArgs,
   type V2_MetaFunction,
 } from "@remix-run/node";
-import * as yaml from "yaml";
-import {
-  Form,
-  useActionData,
-  useFetcher,
-  useLoaderData,
-  useSubmit,
-} from "@remix-run/react";
-import { getTerms } from "~/models/term.server";
+import { useLoaderData, useSubmit } from "@remix-run/react";
+import { getAllTerms } from "~/models/term.server";
 import { useState } from "react";
 import {
   getEvaluatees,
@@ -25,7 +18,7 @@ import {
   extendTermEnd,
 } from "./user_detail.server";
 import { requireAdminUser } from "~/session.server";
-import { DateTime, Zone } from "luxon";
+import { DateTime } from "luxon";
 
 export const meta: V2_MetaFunction = () => [{ title: "ユーザー一覧" }];
 
@@ -62,7 +55,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
   const userId = Number(params.userId);
   // get termId from query
   const termId = Number(request.url.split("?")[1]?.split("=")[1] ?? "0");
-  const terms = await getTerms();
+  const terms = await getAllTerms(userId);
   const showUser = await getUser(userId);
   const { term, termOverride } = await getTerm({ userId, termId });
   const termData = {

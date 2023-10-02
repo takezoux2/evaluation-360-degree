@@ -241,17 +241,17 @@ export const upsertAskSelectionSet = async (
         });
       }
     }
-
-    // Update Term
-    await prisma.term.update({
-      where: {
-        id: termId,
-      },
-      data: {
-        startAt: args.startAt,
-        endAt: args.endAt,
-        name: args.name,
-      },
-    });
   }
+
+  // Update Term
+  await prisma.term.update({
+    where: {
+      id: termId,
+    },
+    data: {
+      startAt: args.startAt,
+      endAt: args.endAt,
+      name: args.name,
+    },
+  });
 };
