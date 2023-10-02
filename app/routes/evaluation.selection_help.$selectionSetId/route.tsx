@@ -4,7 +4,6 @@ import { useState } from "react";
 import { EvaluationComponent } from "~/components/Evaluation/EvaluationComponent";
 import { TermList } from "~/components/Term/TermList";
 import { getListEvaluations, ListEvaluation } from "~/models/evaluation.server";
-import { getTerms } from "~/models/term.server";
 import { requireUser } from "~/session.server";
 import { getAnswerSelectionSet } from "./AnswerSelectionSet.server";
 

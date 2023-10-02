@@ -4,7 +4,7 @@ import { useState } from "react";
 import { EvaluationComponent } from "~/components/Evaluation/EvaluationComponent";
 import { TermList } from "~/components/Term/TermList";
 import { getListEvaluations, ListEvaluation } from "~/models/evaluation.server";
-import { getTerms } from "~/models/term.server";
+import { getTermsInTerm } from "~/models/term.server";
 import { requireUser } from "~/session.server";
 
 export const meta: V2_MetaFunction = () => [{ title: "180度アンケート" }];
@@ -12,7 +12,7 @@ export const meta: V2_MetaFunction = () => [{ title: "180度アンケート" }];
 export const loader = async ({ params, request }: LoaderArgs) => {
   const user = await requireUser(request);
 
-  const terms = await getTerms();
+  const terms = await getTermsInTerm(user.id);
   const evaluations =
     terms.length > 0 && !params._data
       ? await getListEvaluations({

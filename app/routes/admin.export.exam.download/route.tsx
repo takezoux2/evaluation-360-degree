@@ -3,7 +3,6 @@ import { requireAdminUser } from "~/session.server";
 import { getTermById } from "~/models/term.server";
 import invariant from "tiny-invariant";
 import Papa from "papaparse";
-import { getAllEvaluationsInTerm } from "~/models/evaluation.server";
 import { getExamScores } from "~/models/exam.server";
 import { DateTime } from "luxon";
 

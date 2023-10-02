@@ -2,7 +2,7 @@ import { Term } from "@prisma/client";
 import { prisma } from "~/db.server";
 import { StripReturnType } from "./type_util";
 
-export type ListTerm = StripReturnType<typeof getTerms> & {
+export type ListTerm = StripReturnType<typeof getAllTerms> & {
   isInTerm: boolean;
 };
 
