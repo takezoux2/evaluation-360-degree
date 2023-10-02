@@ -56,7 +56,7 @@ export async function action({ params, request }: LoaderArgs) {
     status: 200,
     headers: {
       "Content-Type": "text/csv",
-      "Content-Disposition": `attachment; filename="${term.name}_exam_${timestamp}.csv"`,
+      "Content-Disposition": `attachment; filename="term${term.id}_exam_${timestamp}.csv"`,
     },
   });
 }
