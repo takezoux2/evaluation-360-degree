@@ -66,7 +66,12 @@ export async function getTermsInTerm(userId: number) {
       },
     })
     .then((r) =>
-      r.map((r) => r.term).filter((t) => !terms.some((t2) => t2.id === t.id))
+      r
+        .map((r) => {
+          r.term.endAt = r.endAt;
+          return r.term;
+        })
+        .filter((t) => !terms.some((t2) => t2.id === t.id))
     );
 
   return [...terms, ...personalTerms].map((term) => {
