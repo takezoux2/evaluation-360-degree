@@ -30,6 +30,11 @@ export default function Index() {
           スキルテスト
         </a>
       </div>
+      <div className="m-2">
+        <a className={buttonClassName} href="/essay_exam">
+          記述テスト
+        </a>
+      </div>
       {isAdmin && (
         <div className="m-2">
           <a className={buttonClassName} href="/admin">

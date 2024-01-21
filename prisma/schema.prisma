@@ -334,6 +334,8 @@ model PersonalSkillList {
   termId Int
 
   personalSkills PersonalSkill[]
+
+  @@unique([userId, termId])
 }
 
 model PersonalSkill {
@@ -342,9 +344,9 @@ model PersonalSkill {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  skill           Skill @relation(fields: [skillId], references: [id])
-  skillId         Int
-  experimentYears Float
+  skill          Skill @relation(fields: [skillId], references: [id])
+  skillId        Int
+  experienceYear Float
 
   personalSkillList   PersonalSkillList @relation(fields: [personalSkillListId], references: [id])
   personalSkillListId Int
