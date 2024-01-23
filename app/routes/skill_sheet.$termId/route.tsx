@@ -5,7 +5,12 @@ import {
   type V2_MetaFunction,
 } from "@remix-run/node";
 import * as yaml from "yaml";
-import { Form, useLoaderData, useSubmit } from "@remix-run/react";
+import {
+  Form,
+  useActionData,
+  useLoaderData,
+  useSubmit,
+} from "@remix-run/react";
 import invariant from "tiny-invariant";
 import { getLatestTerms, getTermById } from "~/models/term.server";
 import { toInputDateTimeLocal, toUntil } from "~/time_util";
@@ -26,24 +31,49 @@ import {
   getSkills,
   getOrCreatePersonalSkillList,
   updateOrCreatePersonalSkill,
+  removePersonalSkill,
+  createPersonalSkill,
 } from "./effect.server";
 import { on } from "events";
+import { insertPersonalSkill } from "~/models/personal_skill.server";
 
 export const meta: V2_MetaFunction = () => [{ title: "スキルシート一覧" }];
 
-export const action = async ({ request }: ActionArgs) => {
-  const formData = await request.formData();
+type ActionType = "Delete" | "UpdateOrCreate";
+type UpdatePersonalSkill = {
+  skillId: number;
+  experienceYear: number;
+};
+type DeletePersonalSkill = {
+  personalSkillId: number;
+};
 
-  const personalSkillId = Number(formData.get("personalSkillId") ?? "0");
-  const skillId = Number(formData.get("skillId") ?? "0");
-  const experienceYear = Number(formData.get("experienceYear") ?? "0");
-  console.log("Send");
-  await updateOrCreatePersonalSkill({
-    personalSkillId,
-    skillId,
-    experienceYear,
-  });
-  return json({ hoge: "Hoge" });
+export const action = async ({ request, params }: ActionArgs) => {
+  const formData = await request.formData();
+  const user = await requireUser(request);
+  const term = await getTermById(Number(params.termId));
+  invariant(term, "Term not found");
+
+  const actionType = formData.get("actionType") as ActionType;
+  if (actionType === "UpdateOrCreate") {
+    const data: UpdatePersonalSkill = JSON.parse(
+      formData.get("data") as string
+    );
+    const personalSkillList = await getOrCreatePersonalSkillList(user, term);
+
+    await updateOrCreatePersonalSkill({
+      ...data,
+      personalSkillListId: personalSkillList.id,
+    });
+  } else if (actionType === "Delete") {
+    const data: DeletePersonalSkill = JSON.parse(
+      formData.get("data") as string
+    );
+    await removePersonalSkill(data.personalSkillId);
+  }
+  const updated = await getOrCreatePersonalSkillList(user, term);
+
+  return json({ personalSkillList: updated });
 };
 
 export const loader = async ({ request, params }: LoaderArgs) => {
@@ -69,6 +99,12 @@ export default function SkillSheet() {
   const { user, personalSkillList, term, skills } =
     useLoaderData<typeof loader>();
 
+  const postResult = useActionData<typeof action>();
+  const personalSkills = (
+    postResult?.personalSkillList?.personalSkills ??
+    personalSkillList.personalSkills
+  ).sort((a, b) => b.experienceYear - a.experienceYear);
+
   const floatingSkillList = (
     input: string,
     setSkillInput: (skill: { id: number; name: string }) => void
@@ -92,7 +128,6 @@ export default function SkillSheet() {
               tabIndex={-1}
               key={index}
               onClick={() => {
-                console.log("Click: " + s);
                 setSkillInput(s);
               }}
             >
@@ -103,62 +138,102 @@ export default function SkillSheet() {
       </div>
     );
   };
-  const [completionIndex, setCompletionIndex] = useState(-1);
-  const skillListElements = personalSkillList.personalSkills.map((p, index) => {
-    const [skillInput, setSkillInput] = useState(p.skill.name);
-    const [skillId, setSkillId] = useState(p.skill.id);
-    const [expYearInput, setExpYearInput] = useState(p.experienceYear);
-    const showCompletion = completionIndex === index;
-    const submit = useSubmit();
+  const submit = useSubmit();
+  const skillListElements = personalSkills.map((p, index) => {
     return (
       <div key={p.id} className="flex flex-row">
         <div className="relative inline-block w-64 border p-2">
-          <input
-            type="text"
-            value={skillInput}
-            onChange={(t) => setSkillInput(t.target.value)}
-            onFocus={() => setCompletionIndex(index)}
-          />
-          {showCompletion &&
-            floatingSkillList(skillInput, (skill) => {
-              setCompletionIndex(-1);
-              setSkillInput(skill.name);
-              setSkillId(skill.id);
-
-              const data = new FormData();
-              data.set("personalSkillId", String(p.id));
-              data.set("skillId", String(skill.id));
-              data.set("experienceYear", String(expYearInput));
-              submit(data, { method: "post" });
-            })}
+          {p.skill.name}
         </div>
-        <div className="w-64 border p-2">
-          <input
-            type="number"
-            value={expYearInput}
-            onChange={(t) => {
-              setExpYearInput(Number(t.target.value));
+        <div className="w-64 border p-2">{p.experienceYear}</div>
+        <div className="w-32 border p-2">
+          <button
+            className="rounded-md bg-red-300 px-2"
+            onClick={() => {
               const data = new FormData();
-              data.set("personalSkillId", String(p.id));
-              data.set("skillId", String(skillId));
-              data.set("experienceYear", String(t.target.value));
+              data.set("actionType", "Delete");
+              data.set(
+                "data",
+                JSON.stringify({
+                  personalSkillId: Number(p.id),
+                })
+              );
               submit(data, { method: "post" });
             }}
-          />
-        </div>
-        <div className="w-32 border p-2">
-          <button className="rounded-md bg-red-300 px-2" onClick={() => {}}>
+          >
             削除
           </button>
         </div>
       </div>
     );
   });
+  const [skillInput, setSkillInput] = useState("");
+  const [skillId, setSkillId] = useState(0);
+  const [expYearInput, setExpYearInput] = useState(1);
+  const [showCompletion, setShowCompletion] = useState(false);
 
   return (
     <div className="flex flex-col">
       <div>{term.name}</div>
       <div>{user.name}</div>
+
+      <div>
+        <div>スキル追加</div>
+        <div className="flex flex-row">
+          <div className="w-96 border bg-blue-100  p-2">
+            <label htmlFor="skill_name">スキル名:</label>
+            <input
+              id="skill_name"
+              type="text"
+              className="ml-2"
+              onFocus={() => setShowCompletion(true)}
+              value={skillInput}
+              onChange={(e) => setSkillInput(e.target.value)}
+              autoComplete="off"
+            />
+            {showCompletion &&
+              floatingSkillList(skillInput, (skill) => {
+                setSkillId(skill.id);
+                setSkillInput(skill.name);
+                setShowCompletion(false);
+              })}
+          </div>
+          <div className="w-64 border bg-blue-100 p-2">
+            <label htmlFor="expYear">経験年数:</label>
+            <input
+              id="expYear"
+              type="number"
+              className="ml-2 w-32"
+              value={expYearInput}
+              onChange={(e) => setExpYearInput(Number(e.target.value))}
+            />
+          </div>
+          <div className=" bg-blue-100 p-2">
+            <button
+              className="rounded-md bg-green-300 px-2"
+              onClick={() => {
+                if (skillId === 0) {
+                  return;
+                }
+                const data = new FormData();
+                data.set("actionType", "UpdateOrCreate");
+                data.set(
+                  "data",
+                  JSON.stringify({
+                    skillId: skillId,
+                    experienceYear: expYearInput,
+                  })
+                );
+                submit(data, { method: "post", replace: true });
+                setSkillId(0);
+                setSkillInput("");
+              }}
+            >
+              追加
+            </button>
+          </div>
+        </div>
+      </div>
       <div>
         <div>スキル</div>
         <div className="flex flex-row">

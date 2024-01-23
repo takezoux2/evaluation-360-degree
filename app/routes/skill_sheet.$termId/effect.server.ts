@@ -2,9 +2,11 @@ import { Term, User } from "@prisma/client";
 import {
   copySkills,
   createPersonalSkillList,
+  deletePersonalSkill,
   getLatestPersonalSkillListSkills,
   getPersonalSkillList,
-  updatePersonalSkill,
+  insertPersonalSkill,
+  upsertPersonalSkill,
 } from "~/models/personal_skill.server";
 import { getAllSkills } from "~/models/skill.server";
 import { getTermById, getTermsInTerm } from "~/models/term.server";
@@ -33,10 +35,19 @@ export const getSkills = () => {
   });
 };
 
-export const updateOrCreatePersonalSkill = (args: {
-  personalSkillId: number;
+export const updateOrCreatePersonalSkill = async (args: {
+  personalSkillListId: number;
   skillId: number;
   experienceYear: number;
 }) => {
-  return updatePersonalSkill(args);
+  return await upsertPersonalSkill(args);
+};
+export const createPersonalSkill = (args: { user: User; term: Term }) => {
+  return insertPersonalSkill({
+    userId: args.user.id,
+    termId: args.term.id,
+  });
+};
+export const removePersonalSkill = (personalSkillId: number) => {
+  return deletePersonalSkill(personalSkillId);
 };

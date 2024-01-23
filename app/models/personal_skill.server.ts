@@ -62,18 +62,53 @@ export const copySkills = async (
   });
 };
 
-export const updatePersonalSkill = async (args: {
-  personalSkillId: number;
+export const upsertPersonalSkill = async (args: {
+  personalSkillListId: number;
   skillId: number;
   experienceYear: number;
 }) => {
-  await prisma.personalSkill.update({
+  return await prisma.personalSkill.upsert({
     where: {
-      id: args.personalSkillId,
+      skillId_personalSkillListId: {
+        personalSkillListId: args.personalSkillListId,
+        skillId: args.skillId,
+      },
     },
-    data: {
+    update: {
+      experienceYear: args.experienceYear,
+    },
+    create: {
+      personalSkillListId: args.personalSkillListId,
       skillId: args.skillId,
       experienceYear: args.experienceYear,
+    },
+  });
+};
+export const insertPersonalSkill = async (args: {
+  userId: number;
+  termId: number;
+}) => {
+  const skillList = await prisma.personalSkillList.findUnique({
+    where: {
+      userId_termId: {
+        userId: args.userId,
+        termId: args.termId,
+      },
+    },
+  });
+  return await prisma.personalSkill.create({
+    data: {
+      personalSkillListId: skillList!.id,
+      skillId: 1,
+      experienceYear: 0,
+    },
+  });
+};
+
+export const deletePersonalSkill = async (personalSkillId: number) => {
+  await prisma.personalSkill.delete({
+    where: {
+      id: personalSkillId,
     },
   });
 };

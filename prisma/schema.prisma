@@ -350,6 +350,8 @@ model PersonalSkill {
 
   personalSkillList   PersonalSkillList @relation(fields: [personalSkillListId], references: [id])
   personalSkillListId Int
+
+  @@unique([skillId, personalSkillListId])
 }
 
 model Skill {
