@@ -379,9 +379,16 @@ model EssayExam {
   EssayQuestionSection EssayQuestionSection[]
 }
 
+enum AnswerType {
+  ANSWER_ALL
+  CHOICE_ONE
+}
+
 model EssayQuestionSection {
   id   Int    @id @default(autoincrement())
   name String @unique
+
+  answerType AnswerType
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -432,4 +439,6 @@ model EssayQuestionAnswer {
   essayExamAnswerId Int
   essayQuestion     EssayQuestion   @relation(fields: [essayQuestionId], references: [id])
   essayQuestionId   Int
+
+  @@unique([essayExamAnswerId, essayQuestionId])
 }

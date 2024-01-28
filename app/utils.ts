@@ -70,3 +70,33 @@ export function useUser(): LoginUser {
 export function validateEmail(email: unknown): email is string {
   return typeof email === "string" && email.length > 3 && email.includes("@");
 }
+
+/**
+ * 半角文字を0.5文字としてカウントする
+ * 改行は０文字とする
+ * @param str
+ * @returns
+ */
+export function countHalfWidthAsHalf(str: string) {
+  let count = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    // 改行
+    if (char === 0x0a || char === 0x0d) {
+      count += 0;
+      continue;
+    } else if (
+      // 全角文字の場合
+      (char >= 0x3000 && char <= 0x9fff) || // 一般的な東アジアの全角文字
+      (char >= 0xff01 && char <= 0xff60) || // 全角記号
+      (char >= 0xffe0 && char <= 0xffe6)
+    ) {
+      // 全角記号
+      count += 1;
+    } else {
+      // 半角文字の場合
+      count += 0.5;
+    }
+  }
+  return count;
+}

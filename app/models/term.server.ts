@@ -52,6 +52,9 @@ export async function getTermsInTerm(userId: number) {
       endAt: { gte: now },
     },
     orderBy: { startAt: "desc" },
+    include: {
+      EssayExam: true,
+    },
   });
   // 個人延長を取得
   const personalTerms = await prisma.personalTermOverride
@@ -62,7 +65,11 @@ export async function getTermsInTerm(userId: number) {
       },
       orderBy: { endAt: "desc" },
       include: {
-        term: true,
+        term: {
+          include: {
+            EssayExam: true,
+          },
+        },
       },
     })
     .then((r) =>
@@ -141,4 +148,9 @@ export async function getTermById(id: Term["id"]) {
       },
     },
   });
+}
+
+export async function isInTerm(userId: number, termId: number) {
+  const validTerms = await getTermsInTerm(userId);
+  return validTerms.some((t) => t.id === termId);
 }

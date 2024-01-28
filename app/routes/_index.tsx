@@ -31,7 +31,7 @@ export default function Index() {
         </a>
       </div>
       <div className="m-2">
-        <a className={buttonClassName} href="/essay_exam">
+        <a className={buttonClassName} href="/term_exams">
           記述テスト
         </a>
       </div>

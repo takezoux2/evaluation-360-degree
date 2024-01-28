@@ -19,6 +19,15 @@ export default function Index() {
   const buttonClassName = "bg-green-300 border-black p-2 rounded-md";
 
   const termList = terms.map((t) => {
+    const essayExams = t.EssayExam.map((e) => {
+      return (
+        <div key={e.id} className="m-2">
+          <a className={buttonClassName} href={`/essay_exam/${e.id}`}>
+            {e.name}
+          </a>
+        </div>
+      );
+    });
     return (
       <div key={t.id}>
         <div>{t.name}</div>
@@ -28,11 +37,7 @@ export default function Index() {
               スキルシート
             </a>
           </div>
-          <div className="m-2">
-            <a className={buttonClassName} href="#">
-              記述問題
-            </a>
-          </div>
+          {essayExams}
         </div>
       </div>
     );
