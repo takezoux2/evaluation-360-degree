@@ -33,19 +33,24 @@ import {
   updateOrCreatePersonalSkill,
   removePersonalSkill,
   createPersonalSkill,
+  registerSkill,
 } from "./effect.server";
 import { on } from "events";
 import { insertPersonalSkill } from "~/models/personal_skill.server";
 
 export const meta: V2_MetaFunction = () => [{ title: "スキルシート一覧" }];
 
-type ActionType = "Delete" | "UpdateOrCreate";
+type ActionType = "Delete" | "AddOrUpdate" | "RegisterSkillThenAdd";
 type UpdatePersonalSkill = {
   skillId: number;
   experienceYear: number;
 };
 type DeletePersonalSkill = {
   personalSkillId: number;
+};
+type RegisterThenAddPersonalSkill = {
+  skillName: string;
+  experienceYear: number;
 };
 
 export const action = async ({ request, params }: ActionArgs) => {
@@ -55,7 +60,18 @@ export const action = async ({ request, params }: ActionArgs) => {
   invariant(term, "Term not found");
 
   const actionType = formData.get("actionType") as ActionType;
-  if (actionType === "UpdateOrCreate") {
+  if (actionType === "RegisterSkillThenAdd") {
+    const data: RegisterThenAddPersonalSkill = JSON.parse(
+      formData.get("data") as string
+    );
+    const skill = await registerSkill(data.skillName);
+    const personalSkillList = await getOrCreatePersonalSkillList(user, term);
+    await updateOrCreatePersonalSkill({
+      skillId: skill.id,
+      experienceYear: data.experienceYear,
+      personalSkillListId: personalSkillList.id,
+    });
+  } else if (actionType === "AddOrUpdate") {
     const data: UpdatePersonalSkill = JSON.parse(
       formData.get("data") as string
     );
@@ -105,13 +121,20 @@ export default function SkillSheet() {
     personalSkillList.personalSkills
   ).sort((a, b) => b.experienceYear - a.experienceYear);
 
+  const [skillInput, setSkillInput] = useState("");
+  const [skillId, setSkillId] = useState(0);
+  const [expYearInput, setExpYearInput] = useState(1);
+  const [showCompletion, setShowCompletion] = useState(false);
+
   const floatingSkillList = (
     input: string,
     setSkillInput: (skill: { id: number; name: string }) => void
   ) => {
+    const lowerInput = input.toLocaleLowerCase().replace(/\s/g, "");
     const skillList = input
-      ? skills.filter((s) => s.lowerName.includes(input.toLocaleLowerCase()))
-      : skills;
+      ? skills.filter((s) => s.lowerName.includes(lowerInput))
+      : skills.slice(0, 10);
+    const hasPerfectMatch = skills.some((s) => s.lowerName === lowerInput);
     return (
       <div
         className="absolute left-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
@@ -135,6 +158,19 @@ export default function SkillSheet() {
             </div>
           );
         })}
+        {skillInput.length > 1 && !hasPerfectMatch && (
+          <div
+            className="block px-4 py-2 text-sm text-gray-700 hover:bg-green-100"
+            role="menuitem"
+            tabIndex={-1}
+            key={-1}
+            onClick={() => {
+              setSkillInput({ id: 0, name: skillInput.trim() });
+            }}
+          >
+            【新規】{skillInput}
+          </div>
+        )}
       </div>
     );
   };
@@ -167,11 +203,16 @@ export default function SkillSheet() {
       </div>
     );
   });
-  const [skillInput, setSkillInput] = useState("");
-  const [skillId, setSkillId] = useState(0);
-  const [expYearInput, setExpYearInput] = useState(1);
-  const [showCompletion, setShowCompletion] = useState(false);
 
+  const needSkillRegistration = skillId === 0 && skillInput.length > 1;
+  const addSkillButtonLabel = (() => {
+    if (needSkillRegistration) return "スキルを登録して追加";
+    if (showCompletion || skillId === 0) return "スキルを選択してください";
+
+    return "追加";
+  })();
+  const addSkillButtonClass =
+    showCompletion || skillId === 0 ? "bg-gray-300" : "bg-green-300";
   return (
     <div className="flex flex-col">
       <div>{term.name}</div>
@@ -180,56 +221,71 @@ export default function SkillSheet() {
       <div>
         <div>スキル追加</div>
         <div className="flex flex-row">
-          <div className="w-96 border bg-blue-100  p-2">
-            <label htmlFor="skill_name">スキル名:</label>
-            <input
-              id="skill_name"
-              type="text"
-              className="ml-2"
-              onFocus={() => setShowCompletion(true)}
-              value={skillInput}
-              onChange={(e) => setSkillInput(e.target.value)}
-              autoComplete="off"
-            />
-            {showCompletion &&
-              floatingSkillList(skillInput, (skill) => {
-                setSkillId(skill.id);
-                setSkillInput(skill.name);
-                setShowCompletion(false);
-              })}
+          <div className="flex w-96 flex-row border bg-blue-100  p-2">
+            <label className="w-24" htmlFor="skill_name">
+              スキル名:
+            </label>
+            <div className="w-full">
+              <input
+                id="skill_name"
+                type="text"
+                className="w-full pl-1"
+                onFocus={() => setShowCompletion(true)}
+                value={skillInput}
+                onChange={(e) => setSkillInput(e.target.value)}
+                autoComplete="off"
+              />
+              {showCompletion &&
+                floatingSkillList(skillInput, (skill) => {
+                  setSkillId(skill.id);
+                  setSkillInput(skill.name);
+                  setShowCompletion(false);
+                })}
+            </div>
           </div>
-          <div className="w-64 border bg-blue-100 p-2">
+          <div className="w-52 border bg-blue-100 p-2">
             <label htmlFor="expYear">経験年数:</label>
             <input
               id="expYear"
               type="number"
-              className="ml-2 w-32"
+              className="ml-2 w-16 text-right"
               value={expYearInput}
               onChange={(e) => setExpYearInput(Number(e.target.value))}
             />
           </div>
           <div className=" bg-blue-100 p-2">
             <button
-              className="rounded-md bg-green-300 px-2"
+              className={"rounded-md px-2 " + addSkillButtonClass}
+              disabled={showCompletion || skillInput.length <= 1}
               onClick={() => {
-                if (skillId === 0) {
-                  return;
+                if (needSkillRegistration) {
+                  const data = new FormData();
+                  data.set("actionType", "RegisterSkillThenAdd");
+                  data.set(
+                    "data",
+                    JSON.stringify({
+                      skillName: skillInput,
+                      experienceYear: expYearInput,
+                    })
+                  );
+                  submit(data, { method: "post", replace: true });
+                } else {
+                  const data = new FormData();
+                  data.set("actionType", "AddOrUpdate");
+                  data.set(
+                    "data",
+                    JSON.stringify({
+                      skillId: skillId,
+                      experienceYear: expYearInput,
+                    })
+                  );
+                  submit(data, { method: "post", replace: true });
                 }
-                const data = new FormData();
-                data.set("actionType", "UpdateOrCreate");
-                data.set(
-                  "data",
-                  JSON.stringify({
-                    skillId: skillId,
-                    experienceYear: expYearInput,
-                  })
-                );
-                submit(data, { method: "post", replace: true });
                 setSkillId(0);
                 setSkillInput("");
               }}
             >
-              追加
+              {addSkillButtonLabel}
             </button>
           </div>
         </div>

@@ -6,16 +6,11 @@ import {
 } from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { useEffect, useState } from "react";
-import { EvaluationComponent } from "~/components/Evaluation/EvaluationComponent";
-import { TermList } from "~/components/Term/TermList";
-import { getListEvaluations, ListEvaluation } from "~/models/evaluation.server";
 import { requireUser } from "~/session.server";
-import {
-  getEssayExamAnswer,
-  getTerms,
-  updateEssayExamAnswers,
-} from "./effect.server";
+import { getEssayExamAnswer, updateEssayExamAnswers } from "./effect.server";
 import { countHalfWidthAsHalf } from "~/utils";
+import { AnswerPanel } from "./component";
+import { StripReturnType } from "~/models/type_util";
 
 export const meta: V2_MetaFunction = () => [{ title: "記述式試験" }];
 
@@ -101,6 +96,81 @@ export default function Index() {
         disabled={false}
       />
     );
+  type Section = NonNullable<
+    StripReturnType<typeof getEssayExamAnswer>["essayExam"]
+  >["EssayQuestionSection"][0];
+  const AnswerAllSection = (section: Section) => {
+    return (
+      <div>
+        {section.essayQuestions.map((question) => {
+          return AnswerPanel(
+            question,
+            essayExamAnswer?.EssayQuestionAnswer.find(
+              (a) => a.essayQuestionId === question.id
+            ),
+            (value) => {
+              const c = countHalfWidthAsHalf(value);
+              const errorLabel = `文字数が超過しています - ${question.text}`;
+              if (c > question.maxAnswerTextLength) {
+                addError(errorLabel);
+              } else {
+                removeError(errorLabel);
+                setIsChanged(true);
+              }
+            }
+          );
+        })}
+      </div>
+    );
+  };
+
+  const ChoiceOneSection = (section: Section) => {
+    const [selectedTabIndex, setSelectedTabIndex] = useState(0);
+    const question = section.essayQuestions[selectedTabIndex];
+    return (
+      <div>
+        <div className="flex flex-row">
+          {section.essayQuestions.map((q, index) => {
+            if (selectedTabIndex === index) {
+              return (
+                <div key={index} className="rounded-t-lg bg-green-400 px-3">
+                  <span className="border-b border-black">{q.text}</span>
+                </div>
+              );
+            } else {
+              return (
+                <button
+                  key={index}
+                  className="rounded-t-lg px-3 focus:cursor-pointer"
+                  onClick={() => setSelectedTabIndex(index)}
+                >
+                  <span className=" border-black">{q.text}</span>
+                </button>
+              );
+            }
+          })}
+        </div>
+        <div>
+          {AnswerPanel(
+            question,
+            essayExamAnswer?.EssayQuestionAnswer.find(
+              (a) => a.essayQuestionId === question.id
+            ),
+            (value) => {
+              const c = countHalfWidthAsHalf(value);
+              const errorLabel = `文字数が超過しています - ${question.text}`;
+              if (c > question.maxAnswerTextLength) {
+                addError(errorLabel);
+              } else {
+                removeError(errorLabel);
+                setIsChanged(true);
+              }
+            }
+          )}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <main className="min-h-screen bg-white p-3">
@@ -114,46 +184,9 @@ export default function Index() {
             <div key={section.id}>
               <div>{section.name}</div>
               <div>
-                {section.essayQuestions.map((question) => {
-                  const hLines = Math.max(
-                    2,
-                    Math.ceil(question.maxAnswerTextLength / 100)
-                  );
-                  const answerText = essayExamAnswer?.EssayQuestionAnswer.find(
-                    (a) => a.essayQuestionId === question.id
-                  )?.text;
-                  const [input, setInput] = useState(answerText ?? "");
-
-                  return (
-                    <div key={question.id}>
-                      <label htmlFor={`q${question.id}`}>{question.text}</label>
-                      <textarea
-                        className="w-full border-2 border-gray-500"
-                        id={`q${question.id}`}
-                        name={`q${question.id}`}
-                        value={input}
-                        rows={hLines}
-                        onChange={(e) => {
-                          const c = countHalfWidthAsHalf(e.target.value);
-                          const errorLabel = `文字数が超過しています - ${question.text}`;
-                          if (c > question.maxAnswerTextLength) {
-                            addError(errorLabel);
-                          } else {
-                            removeError(errorLabel);
-                            setIsChanged(true);
-                          }
-                          setInput(e.target.value);
-                        }}
-                      ></textarea>
-                      <div>
-                        文字数:{" "}
-                        {countHalfWidthAsHalf(input) +
-                          "/" +
-                          question.maxAnswerTextLength}
-                      </div>
-                    </div>
-                  );
-                })}
+                {section.answerType === "ANSWER_ALL"
+                  ? AnswerAllSection(section)
+                  : ChoiceOneSection(section)}
               </div>
             </div>
           );

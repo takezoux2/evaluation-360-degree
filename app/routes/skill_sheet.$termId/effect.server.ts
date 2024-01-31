@@ -8,9 +8,7 @@ import {
   insertPersonalSkill,
   upsertPersonalSkill,
 } from "~/models/personal_skill.server";
-import { getAllSkills } from "~/models/skill.server";
-import { getTermById, getTermsInTerm } from "~/models/term.server";
-import { requireUser } from "~/session.server";
+import { getAllSkills, upsertSkill } from "~/models/skill.server";
 
 export const getOrCreatePersonalSkillList = async (user: User, term: Term) => {
   const personalSkillList = await getPersonalSkillList(user, term);
@@ -30,7 +28,9 @@ export const getOrCreatePersonalSkillList = async (user: User, term: Term) => {
 export const getSkills = () => {
   return getAllSkills().then((skills) => {
     return skills.map((skill) => {
-      return Object.assign(skill, { lowerName: skill.name.toLowerCase() });
+      return Object.assign(skill, {
+        lowerName: skill.name.toLowerCase().replace(/\s/g, ""),
+      });
     });
   });
 };
@@ -50,4 +50,8 @@ export const createPersonalSkill = (args: { user: User; term: Term }) => {
 };
 export const removePersonalSkill = (personalSkillId: number) => {
   return deletePersonalSkill(personalSkillId);
+};
+
+export const registerSkill = (skillName: string) => {
+  return upsertSkill(skillName);
 };
