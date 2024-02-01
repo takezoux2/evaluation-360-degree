@@ -86,16 +86,13 @@ export function countHalfWidthAsHalf(str: string) {
       count += 0;
       continue;
     } else if (
-      // 全角文字の場合
-      (char >= 0x3000 && char <= 0x9fff) || // 一般的な東アジアの全角文字
-      (char >= 0xff01 && char <= 0xff60) || // 全角記号
-      (char >= 0xffe0 && char <= 0xffe6)
+      // 半角の場合
+      0x20 <= char &&
+      char <= 0x7e
     ) {
-      // 全角記号
-      count += 1;
-    } else {
-      // 半角文字の場合
       count += 0.5;
+    } else {
+      count += 1;
     }
   }
   return count;

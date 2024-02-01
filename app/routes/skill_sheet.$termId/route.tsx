@@ -13,20 +13,8 @@ import {
 } from "@remix-run/react";
 import invariant from "tiny-invariant";
 import { getLatestTerms, getTermById } from "~/models/term.server";
-import { toInputDateTimeLocal, toUntil } from "~/time_util";
-import { upsertAskSelectionSet } from "~/models/term_update.server";
-import Editor from "@monaco-editor/react";
 import { useState } from "react";
-import {
-  addExamCheatLog,
-  ExamState,
-  FullExam,
-  getNotAnsweredExamsInTerm,
-  startExamination,
-  updateAnswer,
-} from "~/models/exam.server";
 import { requireUser } from "~/session.server";
-import ExamPanel from "~/components/Exam/ExamPanel";
 import {
   getSkills,
   getOrCreatePersonalSkillList,
@@ -35,8 +23,6 @@ import {
   createPersonalSkill,
   registerSkill,
 } from "./effect.server";
-import { on } from "events";
-import { insertPersonalSkill } from "~/models/personal_skill.server";
 
 export const meta: V2_MetaFunction = () => [{ title: "スキルシート一覧" }];
 
@@ -64,7 +50,7 @@ export const action = async ({ request, params }: ActionArgs) => {
     const data: RegisterThenAddPersonalSkill = JSON.parse(
       formData.get("data") as string
     );
-    const skill = await registerSkill(data.skillName);
+    const skill = await registerSkill(data.skillName, user);
     const personalSkillList = await getOrCreatePersonalSkillList(user, term);
     await updateOrCreatePersonalSkill({
       skillId: skill.id,
@@ -212,7 +198,7 @@ export default function SkillSheet() {
     return "追加";
   })();
   const addSkillButtonClass =
-    showCompletion || skillId === 0 ? "bg-gray-300" : "bg-green-300";
+    showCompletion || !needSkillRegistration ? "bg-gray-300" : "bg-green-300";
   return (
     <div className="flex flex-col">
       <div>{term.name}</div>
@@ -259,6 +245,14 @@ export default function SkillSheet() {
               disabled={showCompletion || skillInput.length <= 1}
               onClick={() => {
                 if (needSkillRegistration) {
+                  const r = confirm(
+                    "スキルを新規に登録します。\nスペルミスがないか確認して登録してください。\n\n" +
+                      skillInput +
+                      "\n\n※変な登録した場合ペナルティーを受ける可能性があります。"
+                  );
+                  if (!r) {
+                    return;
+                  }
                   const data = new FormData();
                   data.set("actionType", "RegisterSkillThenAdd");
                   data.set(

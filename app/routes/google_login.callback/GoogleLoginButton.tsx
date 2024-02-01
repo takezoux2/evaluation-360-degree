@@ -9,11 +9,6 @@ import {
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
-import { useEffect, useRef } from "react";
-
-import { verifyLogin } from "~/models/user.server";
-import { createUserSession, getUserId } from "~/session.server";
-import { safeRedirect, validateEmail } from "~/utils";
 
 export const meta: V2_MetaFunction = () => [{ title: "SnsLogin" }];
 

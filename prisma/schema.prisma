@@ -29,6 +29,7 @@ model User {
   PersonalTermOverride PersonalTermOverride[]
   personalSkillLists   PersonalSkillList[]
   EssayExamAnswer      EssayExamAnswer[]
+  Skill                Skill[]
 }
 
 model Password {
@@ -357,6 +358,11 @@ model PersonalSkill {
 model Skill {
   id   Int    @id @default(autoincrement())
   name String @unique
+
+  usedInCompany Boolean
+
+  registeredUser   User @relation(fields: [registeredUserId], references: [id])
+  registeredUserId Int
 
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt

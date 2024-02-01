@@ -52,6 +52,6 @@ export const removePersonalSkill = (personalSkillId: number) => {
   return deletePersonalSkill(personalSkillId);
 };
 
-export const registerSkill = (skillName: string) => {
-  return upsertSkill(skillName);
+export const registerSkill = (skillName: string, registeredUser: User) => {
+  return upsertSkill(skillName, registeredUser.id);
 };

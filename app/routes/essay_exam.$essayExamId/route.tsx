@@ -5,7 +5,7 @@ import {
   type V2_MetaFunction,
 } from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import { requireUser } from "~/session.server";
 import { getEssayExamAnswer, updateEssayExamAnswers } from "./effect.server";
 import { countHalfWidthAsHalf } from "~/utils";
@@ -103,21 +103,24 @@ export default function Index() {
     return (
       <div>
         {section.essayQuestions.map((question) => {
-          return AnswerPanel(
-            question,
-            essayExamAnswer?.EssayQuestionAnswer.find(
-              (a) => a.essayQuestionId === question.id
-            ),
-            (value) => {
-              const c = countHalfWidthAsHalf(value);
-              const errorLabel = `文字数が超過しています - ${question.text}`;
-              if (c > question.maxAnswerTextLength) {
-                addError(errorLabel);
-              } else {
-                removeError(errorLabel);
-                setIsChanged(true);
-              }
-            }
+          return (
+            <AnswerPanel
+              key={question.id}
+              essayQuestion={question}
+              essayQuestionAnswer={essayExamAnswer?.EssayQuestionAnswer.find(
+                (a) => a.essayQuestionId === question.id
+              )}
+              onChange={(value) => {
+                const c = countHalfWidthAsHalf(value);
+                const errorLabel = `文字数が超過しています - ${question.text}`;
+                if (c > question.maxAnswerTextLength) {
+                  addError(errorLabel);
+                } else {
+                  removeError(errorLabel);
+                  setIsChanged(true);
+                }
+              }}
+            />
           );
         })}
       </div>
@@ -125,38 +128,61 @@ export default function Index() {
   };
 
   const ChoiceOneSection = (section: Section) => {
-    const [selectedTabIndex, setSelectedTabIndex] = useState(0);
+    const hasAnsweredIndex = section.essayQuestions.findIndex((q) => {
+      return (
+        essayExamAnswer?.EssayQuestionAnswer.some(
+          (a) => a.essayQuestionId === q.id && a.text.length > 0
+        ) === true
+      );
+    });
+    const [selectedTabIndex, setSelectedTabIndex] = useState(hasAnsweredIndex);
     const question = section.essayQuestions[selectedTabIndex];
+    const answer = essayExamAnswer?.EssayQuestionAnswer.find(
+      (a) => a.essayQuestionId === question.id
+    );
+    // 文字が入力された場合、タブを固定
+    const [fixTab, setFixTab] = useState(answer && answer.text.length > 0);
     return (
       <div>
         <div className="flex flex-row">
           {section.essayQuestions.map((q, index) => {
             if (selectedTabIndex === index) {
               return (
-                <div key={index} className="rounded-t-lg bg-green-400 px-3">
-                  <span className="border-b border-black">{q.text}</span>
+                <div
+                  key={index}
+                  className="rounded-t-lg border border-gray-400 bg-green-400 px-3 py-1"
+                >
+                  <span>{q.text}</span>
+                </div>
+              );
+            } else if (fixTab) {
+              return (
+                <div
+                  key={index}
+                  className="rounded-t-lg border border-gray-400 bg-gray-300 px-3 py-1 focus:cursor-pointer"
+                >
+                  {q.text}
                 </div>
               );
             } else {
               return (
                 <button
                   key={index}
-                  className="rounded-t-lg px-3 focus:cursor-pointer"
+                  className="rounded-t-lg border border-gray-400 px-3 py-1 focus:cursor-pointer"
                   onClick={() => setSelectedTabIndex(index)}
                 >
-                  <span className=" border-black">{q.text}</span>
+                  <span>{q.text}</span>
                 </button>
               );
             }
           })}
         </div>
         <div>
-          {AnswerPanel(
-            question,
-            essayExamAnswer?.EssayQuestionAnswer.find(
-              (a) => a.essayQuestionId === question.id
-            ),
-            (value) => {
+          <AnswerPanel
+            key={question.id}
+            essayQuestion={question}
+            essayQuestionAnswer={answer}
+            onChange={(value) => {
               const c = countHalfWidthAsHalf(value);
               const errorLabel = `文字数が超過しています - ${question.text}`;
               if (c > question.maxAnswerTextLength) {
@@ -165,8 +191,9 @@ export default function Index() {
                 removeError(errorLabel);
                 setIsChanged(true);
               }
-            }
-          )}
+              setFixTab(value.length > 0);
+            }}
+          />
         </div>
       </div>
     );

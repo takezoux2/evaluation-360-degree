@@ -103,7 +103,7 @@ export const ExamQuestionPanel = ({
         else
           return (
             <>
-              line <br />
+              {line} <br />
             </>
           );
       });
