@@ -352,6 +352,9 @@ model PersonalSkill {
   personalSkillList   PersonalSkillList @relation(fields: [personalSkillListId], references: [id])
   personalSkillListId Int
 
+  skillCategory   SkillCategory @relation(fields: [skillCategoryId], references: [id])
+  skillCategoryId Int
+
   @@unique([skillId, personalSkillListId])
 }
 
@@ -367,6 +370,15 @@ model Skill {
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
   personalSkills PersonalSkill[]
+}
+
+model SkillCategory {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  PersonalSkill PersonalSkill[]
 }
 
 // 記述問題

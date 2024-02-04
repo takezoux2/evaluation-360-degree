@@ -238,6 +238,18 @@ async function seed() {
       ],
     });
   }
+  // スキルシート
+  await prisma.skillCategory.createMany({
+    data: [
+      {
+        name: "自社で使用している技術",
+      },
+      {
+        name: "自社では使用していない技術",
+      },
+    ],
+  });
+
   // 記述試験
   const essayExam = await prisma.essayExam.create({
     data: {

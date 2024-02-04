@@ -5,7 +5,6 @@ import {
   deletePersonalSkill,
   getLatestPersonalSkillListSkills,
   getPersonalSkillList,
-  insertPersonalSkill,
   upsertPersonalSkill,
 } from "~/models/personal_skill.server";
 import { getAllSkills, upsertSkill } from "~/models/skill.server";
@@ -39,14 +38,9 @@ export const updateOrCreatePersonalSkill = async (args: {
   personalSkillListId: number;
   skillId: number;
   experienceYear: number;
+  skillCategoryId: number;
 }) => {
   return await upsertPersonalSkill(args);
-};
-export const createPersonalSkill = (args: { user: User; term: Term }) => {
-  return insertPersonalSkill({
-    userId: args.user.id,
-    termId: args.term.id,
-  });
 };
 export const removePersonalSkill = (personalSkillId: number) => {
   return deletePersonalSkill(personalSkillId);
