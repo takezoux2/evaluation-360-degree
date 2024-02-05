@@ -14,7 +14,7 @@ export const SectionTab = (props: {
       "inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300";
 
     return (
-      <li className="mr-2" onClick={() => setTabIndex(index)}>
+      <li key={index} className="mr-2" onClick={() => setTabIndex(index)}>
         <button className={tabIndex === index ? selected : notSelected}>
           {section.label}
         </button>

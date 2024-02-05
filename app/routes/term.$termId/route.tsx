@@ -34,18 +34,17 @@ export default function Index() {
         <div>受験時間:{e.timeLimitInMinutes}分</div>
         <div>状態:{e.state}</div>
         <div>
-          {
-            <a
-              href={`/exam/${e.id}`}
-              className={
-                e.state === "回答済"
-                  ? buttonClassName.replace("green", "gray")
-                  : buttonClassName
-              }
+          {e.state === "回答済" ? (
+            <span
+              className={buttonClassName.replace("bg-green-300", "bg-gray-300")}
             >
+              回答済
+            </span>
+          ) : (
+            <a href={`/exam/${e.id}`} className={buttonClassName}>
               回答する
             </a>
-          }
+          )}
         </div>
       </div>
     );
@@ -54,6 +53,7 @@ export default function Index() {
     <main className="relative flex min-h-screen flex-col bg-white p-2">
       <div className="flex flex-col rounded-md bg-blue-100">
         <div className="rounded-t-md bg-blue-300 p-2">受験期間情報</div>
+
         <div className="flex flex-col p-2">
           <div className="flex flex-row">
             <div className="w-32 border border-black px-3 text-right">名前</div>
@@ -68,6 +68,20 @@ export default function Index() {
             <div className="w-64 border border-black px-2">
               ～{toUntil(new Date(termData.term.endAt))}まで
             </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-3 flex flex-col rounded-md bg-indigo-100">
+        <div className="rounded-t-md bg-indigo-300 p-2">180度評価</div>
+        <div className="flex flex-col p-2">
+          <div>
+            <a
+              className={buttonClassName}
+              href={`/evaluation/${termData.term.id}`}
+            >
+              評価する
+            </a>
           </div>
         </div>
       </div>

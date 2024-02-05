@@ -6,6 +6,7 @@ export type ListTerm = StripReturnType<typeof getAllTerms> & {
   isInTerm: boolean;
 };
 
+export type SimpleTerm = NonNullable<StripReturnType<typeof getTermById>>;
 /**
  * 有効期限内のTermを取得する
  * @returns

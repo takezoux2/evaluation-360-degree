@@ -11,6 +11,8 @@ import { getEssayExamAnswer, updateEssayExamAnswers } from "./effect.server";
 import { countHalfWidthAsHalf } from "~/utils";
 import { AnswerPanel } from "./component";
 import { StripReturnType } from "~/models/type_util";
+import { ExamPageHader } from "~/components/ExamPageHeader";
+import invariant from "tiny-invariant";
 
 export const meta: V2_MetaFunction = () => [{ title: "記述式試験" }];
 
@@ -44,10 +46,11 @@ export const loader = async ({ params, request }: LoaderArgs) => {
     user: user,
     essayExamId: Number(params.essayExamId),
   });
-  return json({ essayExamAnswer, essayExam });
+  invariant(essayExam, "EssayExam not found");
+  return json({ essayExamAnswer, essayExam, user });
 };
 export default function Index() {
-  const { essayExamAnswer, essayExam } = useLoaderData<typeof loader>();
+  const { essayExamAnswer, essayExam, user } = useLoaderData<typeof loader>();
   const postResult = useActionData<typeof action>();
 
   const [errors, setErrors] = useState<string[]>([]);
@@ -200,28 +203,36 @@ export default function Index() {
   };
 
   return (
-    <main className="min-h-screen bg-white p-3">
-      <form method="POST">
-        <input type="hidden" name="mode" value="save" />
-        <div className="flex justify-between p-2">
-          <div>記述問題</div>
-        </div>
-        {essayExam?.EssayQuestionSection.map((section) => {
-          return (
-            <div key={section.id}>
-              <div>{section.name}</div>
-              <div>
-                {section.answerType === "ANSWER_ALL"
-                  ? AnswerAllSection(section)
-                  : ChoiceOneSection(section)}
+    <>
+      <ExamPageHader
+        term={{
+          id: essayExam.termId,
+        }}
+        user={user}
+      />
+      <main className="min-h-screen bg-white p-3">
+        <form method="POST">
+          <input type="hidden" name="mode" value="save" />
+          <div className="flex justify-between p-2">
+            <div>記述問題</div>
+          </div>
+          {essayExam?.EssayQuestionSection.map((section) => {
+            return (
+              <div key={section.id}>
+                <div>{section.name}</div>
+                <div>
+                  {section.answerType === "ANSWER_ALL"
+                    ? AnswerAllSection(section)
+                    : ChoiceOneSection(section)}
+                </div>
               </div>
-            </div>
-          );
-        })}
-        <div className="mt-3 flex flex-row">{submitButton}</div>
+            );
+          })}
+          <div className="mt-3 flex flex-row">{submitButton}</div>
 
-        {errors.length > 0 && errorLabel}
-      </form>
-    </main>
+          {errors.length > 0 && errorLabel}
+        </form>
+      </main>
+    </>
   );
 }

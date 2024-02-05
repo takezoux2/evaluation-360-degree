@@ -24,6 +24,7 @@ import {
 } from "./effect.server";
 import { getSkillCategories } from "~/models/personal_skill.server";
 import SkillCategoryPanel from "./SkillCategoryPanel";
+import { ExamPageHader } from "~/components/ExamPageHeader";
 
 export const meta: V2_MetaFunction = () => [{ title: "スキルシート一覧" }];
 
@@ -130,10 +131,11 @@ export default function SkillSheet() {
   });
 
   return (
-    <div className="flex flex-col">
-      <div>{term.name}</div>
-      <div>{user.name}</div>
-      {panels}
-    </div>
+    <>
+      <ExamPageHader term={term} user={user} />
+      <main>
+        <div className="flex flex-col">{panels}</div>
+      </main>
+    </>
   );
 }
