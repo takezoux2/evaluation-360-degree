@@ -4,15 +4,15 @@ import invariant from "tiny-invariant";
 import { DateTime } from "luxon";
 import { StripReturnType } from "./type_util";
 
-export type FullExam = StripReturnType<typeof getNotAnsweredExamsInTerm>;
-export type FullExamQuestion = FullExam["exam"]["examQuestions"][number];
+export type FullExam = NonNullable<StripReturnType<typeof getSkillExam>>;
+export type FullExamQuestion = FullExam["examQuestions"][0];
 
 export type ExamState = "未回答" | "回答中" | "回答済";
 
 export const ImageUrl = process.env.IMAGE_URL ?? "http://example.com";
 
 const join = (path1: string, path2: string) => {
-  // Slackを考慮してPathをつなぐ
+  // Slashを考慮してPathをつなぐ
   if (path1.endsWith("/")) {
     if (path2.startsWith("/")) {
       return path1 + path2.slice(1);
@@ -26,6 +26,111 @@ const join = (path1: string, path2: string) => {
       return path1 + "/" + path2;
     }
   }
+};
+
+export const getSkillExamsInTerm = async (userId: number, termId: number) => {
+  return (
+    await prisma.examination.findMany({
+      where: {
+        termId,
+      },
+      include: {
+        ExamAnswer: {
+          where: {
+            userId,
+          },
+        },
+      },
+    })
+  ).map((exam) => {
+    if (exam.ExamAnswer.length > 0) {
+      const answer = exam.ExamAnswer[0];
+      return Object.assign(exam, {
+        answered: true,
+        ExamAnswer: exam.ExamAnswer[0],
+        state:
+          answer.endedAt.getTime() < new Date().getTime() || answer.finishedAt
+            ? ("回答済" as ExamState)
+            : ("回答中" as ExamState),
+      });
+    } else {
+      return Object.assign(exam, {
+        answered: false,
+        ExamAnswer: undefined,
+        state: "未回答" as ExamState,
+      });
+    }
+  });
+};
+
+export const getSkillExam = async (args: {
+  userId: number;
+  examinationId: number;
+}) => {
+  const exam = await prisma.examination.findUnique({
+    where: {
+      id: args.examinationId,
+    },
+    include: {
+      examQuestions: {
+        include: {
+          examQuestionSelections: {
+            select: {
+              id: true,
+              label: true,
+              isCorrectAnswer: false, // 回答情報は返さない。チート対策
+            },
+          },
+        },
+      },
+      ExamAnswer: {
+        include: {
+          examAnswerItem: true,
+        },
+        where: {
+          userId: args.userId,
+        },
+      },
+    },
+  });
+
+  if (!exam) return null;
+  let exam2;
+  if (exam.ExamAnswer.length > 0) {
+    const answer = exam.ExamAnswer[0];
+    exam2 = Object.assign(exam, {
+      answered: true,
+      examAnswer: exam.ExamAnswer[0],
+      state:
+        answer.endedAt.getTime() < new Date().getTime() || answer.finishedAt
+          ? ("回答済" as ExamState)
+          : ("回答中" as ExamState),
+    });
+  } else {
+    exam2 = Object.assign(exam, {
+      answered: false,
+      examAnswer: null,
+      state: "未回答" as ExamState,
+    });
+  }
+
+  // ImageUrlの生成
+  return Object.assign(exam2, {
+    examQuestions: exam.examQuestions.map((q) => {
+      const imageUrl = q.imagePath
+        ? q.imagePath.startsWith("http")
+          ? q.imagePath
+          : join(ImageUrl, q.imagePath)
+        : "";
+      return Object.assign(q, {
+        examQuestionSelectionId: exam.ExamAnswer[0]?.examAnswerItem.find(
+          (a) => a.examQuestionId === q.id
+        )?.examQuestionSelectionId,
+        // pathをURL化しておく
+        imageUrl: imageUrl,
+      });
+    }),
+  });
 };
 
 export async function getNotAnsweredExamsInTerm(userId: number) {

@@ -1,6 +1,13 @@
 import { EssayExam } from "@prisma/client";
 import { prisma } from "~/db.server";
 
+export const getEssayExamsInTerm = async (termId: number) => {
+  const essayExams = await prisma.essayExam.findMany({
+    where: { termId },
+  });
+  return essayExams;
+};
+
 export const findEssayExam = async (id: number) => {
   const essayExam = await prisma.essayExam.findUnique({
     where: { id },

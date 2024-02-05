@@ -29,10 +29,12 @@ export const ExamQuestionPanel = ({
   onCheeted,
   examQuestion,
   onSelectedAnswer,
+  selectedSelectionId,
 }: {
   onCheeted: (e: { type: CheatType; message: string }) => void;
   onSelectedAnswer: (e: { examQuestionSelectionId: number }) => void;
   examQuestion: FullExamQuestion;
+  selectedSelectionId: number;
 }) => {
   const QuestionTextId = "8cjwao3lqauj";
 
@@ -108,7 +110,7 @@ export const ExamQuestionPanel = ({
           );
       });
       const bgColor =
-        selection.id === examQuestion.examQuestionSelectionId
+        selection.id === selectedSelectionId
           ? "bg-green-400 hover:bg-green-500 "
           : "hover:bg-green-100 ";
       return (
@@ -120,7 +122,6 @@ export const ExamQuestionPanel = ({
           }
           onClick={() => {
             onSelectedAnswer({ examQuestionSelectionId: selection.id });
-            examQuestion.examQuestionSelectionId = selection.id;
           }}
         >
           {label}
