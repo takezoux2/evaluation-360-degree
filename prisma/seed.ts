@@ -238,6 +238,77 @@ async function seed() {
       ],
     });
   }
+  // スキルシート
+  await prisma.skillCategory.createMany({
+    data: [
+      {
+        name: "自社で使用している技術",
+      },
+      {
+        name: "自社では使用していない技術",
+      },
+    ],
+  });
+
+  // 記述試験
+  const essayExam = await prisma.essayExam.create({
+    data: {
+      name: "記述式試験1",
+      term: {
+        connect: { id: term.id },
+      },
+    },
+  });
+  {
+    // 全回答
+    const essayQuestionSection = await prisma.essayQuestionSection.create({
+      data: {
+        name: "essayQuestionSection1",
+        answerType: "ANSWER_ALL",
+        essayExam: {
+          connect: { id: essayExam.id },
+        },
+      },
+    });
+    for (let i = 0; i < 2; i++) {
+      await prisma.essayQuestion.create({
+        data: {
+          text: `全答問題${i + 1}`,
+          detail: `全答問題の詳細${i + 1}
+ちゃんと改行される`,
+          maxAnswerTextLength: 50,
+          essayQuestionSection: {
+            connect: { id: essayQuestionSection.id },
+          },
+        },
+      });
+    }
+  }
+  {
+    // 択一
+    const essayQuestionSection = await prisma.essayQuestionSection.create({
+      data: {
+        name: "essayQuestionSection2",
+        answerType: "CHOICE_ONE",
+        essayExam: {
+          connect: { id: essayExam.id },
+        },
+      },
+    });
+    for (let i = 0; i < 2; i++) {
+      await prisma.essayQuestion.create({
+        data: {
+          text: `選択問題${i + 1}`,
+          detail: `選択問題の詳細${i + 1}
+ちゃんと改行される`,
+          maxAnswerTextLength: 500,
+          essayQuestionSection: {
+            connect: { id: essayQuestionSection.id },
+          },
+        },
+      });
+    }
+  }
 
   console.log(`Database has been seeded. 🌱`);
 }

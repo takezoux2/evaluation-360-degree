@@ -21,14 +21,16 @@ model User {
 
   SnsLink              SnsLink?
   roles                Role[]
-  Job                  Job                   @relation(fields: [jobId], references: [id])
+  Job                  Job                    @relation(fields: [jobId], references: [id])
   jobId                Int
-  evaluations          Evaluation[]          @relation("Evaluators")
-  receivedEvaluations  Evaluation[]          @relation("Evaluatees")
+  evaluations          Evaluation[]           @relation("Evaluators")
+  receivedEvaluations  Evaluation[]           @relation("Evaluatees")
   ExamAnswer           ExamAnswer[]
   PersonalTermOverride PersonalTermOverride[]
+  personalSkillLists   PersonalSkillList[]
+  EssayExamAnswer      EssayExamAnswer[]
+  Skill                Skill[]
 }
-
 
 model Password {
   id   Int    @id @default(autoincrement())
@@ -101,6 +103,8 @@ model Term {
   evalustions          Evaluation[]
   Examination          Examination[]
   PersonalTermOverride PersonalTermOverride[]
+  personalSkillLists   PersonalSkillList[]
+  EssayExam            EssayExam[]
 }
 
 model AskSection {
@@ -312,8 +316,147 @@ model PersonalTermOverride {
   termId Int
 
   @@unique([userId, termId])
-
 }
 
 // drop database evaluation360degree;
 // create database evaluation360degree;
+
+// スキルシート
+
+model PersonalSkillList {
+  id Int @id @default(autoincrement())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User @relation(fields: [userId], references: [id])
+  userId Int
+  term   Term @relation(fields: [termId], references: [id])
+  termId Int
+
+  personalSkills PersonalSkill[]
+
+  @@unique([userId, termId])
+}
+
+model PersonalSkill {
+  id Int @id @default(autoincrement())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  skill          Skill @relation(fields: [skillId], references: [id])
+  skillId        Int
+  experienceYear Float
+
+  personalSkillList   PersonalSkillList @relation(fields: [personalSkillListId], references: [id])
+  personalSkillListId Int
+
+  skillCategory   SkillCategory @relation(fields: [skillCategoryId], references: [id])
+  skillCategoryId Int
+
+  @@unique([skillId, personalSkillListId])
+}
+
+model Skill {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  usedInCompany Boolean
+
+  registeredUser   User @relation(fields: [registeredUserId], references: [id])
+  registeredUserId Int
+
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  personalSkills PersonalSkill[]
+}
+
+model SkillCategory {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  PersonalSkill PersonalSkill[]
+}
+
+// 記述問題
+
+model EssayExam {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  term   Term @relation(fields: [termId], references: [id])
+  termId Int
+
+  EssayExamAnswer      EssayExamAnswer[]
+  EssayQuestionSection EssayQuestionSection[]
+}
+
+enum AnswerType {
+  ANSWER_ALL
+  CHOICE_ONE
+}
+
+model EssayQuestionSection {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  answerType AnswerType
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  essayExam   EssayExam @relation(fields: [essayExamId], references: [id])
+  essayExamId Int
+
+  essayQuestions EssayQuestion[]
+}
+
+model EssayQuestion {
+  id     Int    @id @default(autoincrement())
+  text   String @db.Text
+  detail String @db.Text
+
+  maxAnswerTextLength Int
+
+  createdAt              DateTime              @default(now())
+  updatedAt              DateTime              @updatedAt
+  essayQuestionSection   EssayQuestionSection  @relation(fields: [essayQuestionSectionId], references: [id])
+  essayQuestionSectionId Int
+  EssayQuestionAnswer    EssayQuestionAnswer[]
+}
+
+model EssayExamAnswer {
+  id Int @id @default(autoincrement())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user                User                  @relation(fields: [userId], references: [id])
+  userId              Int
+  essayExam           EssayExam             @relation(fields: [essayExamId], references: [id])
+  essayExamId         Int
+  EssayQuestionAnswer EssayQuestionAnswer[]
+
+  @@unique([userId, essayExamId])
+}
+
+model EssayQuestionAnswer {
+  id   Int    @id @default(autoincrement())
+  text String @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  essayExamAnswer   EssayExamAnswer @relation(fields: [essayExamAnswerId], references: [id])
+  essayExamAnswerId Int
+  essayQuestion     EssayQuestion   @relation(fields: [essayQuestionId], references: [id])
+  essayQuestionId   Int
+
+  @@unique([essayExamAnswerId, essayQuestionId])
+}

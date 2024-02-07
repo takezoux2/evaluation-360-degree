@@ -33,6 +33,7 @@
     "@remix-run/react": "^1.19.1",
     "@remix-run/serve": "^1.19.1",
     "bcryptjs": "^2.4.3",
+    "effect": "^2.1.2",
     "googleapis": "^126.0.1",
     "isbot": "^3.6.12",
     "luxon": "^3.4.0",

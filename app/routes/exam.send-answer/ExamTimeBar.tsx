@@ -1,5 +1,5 @@
 import { DateTime } from "luxon";
-import CountDownTimer from "../CountDownTimer";
+import CountDownTimer from "../../components/CountDownTimer";
 import { useEffect, useState } from "react";
 
 export function ExamTimeBar({
