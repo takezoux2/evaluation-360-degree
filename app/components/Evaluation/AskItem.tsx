@@ -58,7 +58,7 @@ export const AskItemComponent = ({
         <div className="w-full" key={index}>
           <button
             className={
-              "h-full w-full items-center rounded-md border border-gray-400 px-6 py-2" +
+              "h-full w-full items-center rounded-md border border-gray-400 py-2" +
               (selected === index
                 ? " bg-blue-500 hover:bg-blue-400"
                 : " hover:bg-orange-100") +
