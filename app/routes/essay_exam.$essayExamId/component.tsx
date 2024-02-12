@@ -17,9 +17,14 @@ export function AnswerPanel({
   const answerText = essayQuestionAnswer?.text;
   const [input, setInput] = useState(answerText || "");
 
+  const color =
+    countHalfWidthAsHalf(input) > essayQuestion.maxAnswerTextLength
+      ? "text-red-600"
+      : "text-black";
+
   return (
-    <div className="my-3" key={essayQuestion.id}>
-      <label htmlFor={`q${essayQuestion.id}`}>
+    <div className="my-3 rounded-lg border p-1" key={essayQuestion.id}>
+      <label htmlFor={`q${essayQuestion.id}`} className={color}>
         {toNodeWithBr(essayQuestion.text + " : " + essayQuestion.detail)}
       </label>
       <textarea
@@ -33,7 +38,7 @@ export function AnswerPanel({
           setInput(e.target.value);
         }}
       ></textarea>
-      <div className="px-5 text-right">
+      <div className={"px-5 text-right " + color}>
         文字数:{" "}
         {countHalfWidthAsHalf(input) + "/" + essayQuestion.maxAnswerTextLength}
       </div>

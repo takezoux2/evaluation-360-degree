@@ -215,13 +215,13 @@ export default function Index() {
       <main className="min-h-screen bg-white p-3">
         <form method="POST">
           <input type="hidden" name="mode" value="save" />
-          <div className="flex justify-between p-2">
+          <div className="flex justify-between rounded-lg bg-green-400 p-2">
             <div>記述問題</div>
           </div>
           {essayExam?.EssayQuestionSection.map((section) => {
             return (
               <div key={section.id}>
-                <div>{section.name}</div>
+                <div className="bg-blue-200 p-2">{section.name}</div>
                 <div>
                   {section.answerType === "ANSWER_ALL"
                     ? AnswerAllSection(section)
