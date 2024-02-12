@@ -138,9 +138,11 @@ export default function Index() {
         ) === true
       );
     });
-    const [selectedTabIndex, setSelectedTabIndex] = useState(hasAnsweredIndex);
+    const [selectedTabIndex, setSelectedTabIndex] = useState(
+      hasAnsweredIndex >= 0 ? hasAnsweredIndex : 0
+    );
     const question = section.essayQuestions[selectedTabIndex];
-    const answer = essayExamAnswer?.EssayQuestionAnswer.find(
+    const answer = essayExamAnswer?.EssayQuestionAnswer?.find(
       (a) => a.essayQuestionId === question.id
     );
     // 文字が入力された場合、タブを固定

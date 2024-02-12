@@ -19,10 +19,11 @@ export default function Index() {
   const buttonClassName =
     "bg-green-300 border border-black p-2 rounded-md w-64";
 
-  const clickableItem = "block rounded border p-2 hover:bg-orange-300";
+  const clickableItem =
+    " bg-indigo-100 block rounded border p-2 hover:bg-orange-300";
   const essayExams = termData.essayExams.map((e) => {
     return (
-      <div key={e.id}>
+      <div key={e.id} className="p-1 ">
         <a className={clickableItem} href={`/essay_exam/${e.id}`}>
           {e.name}
         </a>
@@ -35,7 +36,7 @@ export default function Index() {
         <div>{e.name}</div>
         <div>受験時間:{e.timeLimitInMinutes}分</div>
         <div>状態:{e.state}</div>
-        <div>
+        <div className="p-1">
           {e.state === "回答済" ? (
             <span className="block rounded border bg-gray-300 p-2">回答済</span>
           ) : (
@@ -76,26 +77,26 @@ export default function Index() {
         </div>
       </div>
 
-      <div className="mt-3 flex flex-col rounded-md bg-indigo-100">
+      <div className="mt-3 flex flex-col rounded-md border">
         <div className={pHeader}>180度評価</div>
-        <div className="flex flex-col">
+        <div className="flex flex-col border p-1">
           <a className={clickableItem} href={`/evaluation/${termData.term.id}`}>
             評価開始
           </a>
         </div>
       </div>
-      <div className="mt-3 flex flex-col rounded-md bg-indigo-100">
+      <div className="mt-3 flex flex-col rounded-md border">
         <div className={pHeader}>スキルテスト</div>
         <div className="flex flex-col">{exams}</div>
       </div>
-      <div className="mt-3 flex flex-col rounded-md bg-indigo-100">
+      <div className="mt-3 flex flex-col rounded-md border">
         <div className={pHeader}>記述試験</div>
         <div className="flex flex-col">{essayExams}</div>
       </div>
-      <div className="mt-3 flex flex-col rounded-md bg-indigo-100">
+      <div className="mt-3 flex flex-col rounded-md border">
         <div className={pHeader}>スキルシート入力</div>
         <div className="flex flex-col">
-          <div>
+          <div className="border p-1">
             <a
               className={clickableItem}
               href={`/skill_sheet/${termData.term.id}`}
