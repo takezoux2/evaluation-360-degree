@@ -3,7 +3,7 @@ import { useLoaderData } from "@remix-run/react";
 import { getUser, requireUser } from "~/session.server";
 import { getTerms } from "./effect.server";
 
-export const meta: V2_MetaFunction = () => [{ title: "アンケートシステム" }];
+export const meta: V2_MetaFunction = () => [{ title: "職能給テストサービス" }];
 
 export const loader = async ({ request }: LoaderArgs) => {
   const user = await requireUser(request);
@@ -13,19 +13,39 @@ export const loader = async ({ request }: LoaderArgs) => {
 
 export default function Index() {
   const { isAdmin, terms, user } = useLoaderData<typeof loader>();
-  const buttonClassName = "bg-green-300 border-black p-2 rounded-md";
   return (
     <main className="relative flex min-h-screen flex-col bg-white p-2">
-      {terms.map((term, index) => (
-        <a className={buttonClassName} href={`/term/${term.id}`} key={index}>
-          {term.name}
-        </a>
-      ))}
+      <div className="flex w-64 flex-col">
+        <div className=" rounded-t-lg bg-blue-100 p-3 text-lg font-bold">
+          受験可能なテスト
+        </div>
+        <div>
+          <ul className="list-inside list-none">
+            {terms.length > 0 ? (
+              terms.map((term, index) => (
+                <li className="border p-2 hover:bg-orange-100">
+                  <a
+                    className="block w-full text-lg"
+                    href={`/term/${term.id}`}
+                    key={index}
+                  >
+                    {term.name}
+                  </a>
+                </li>
+              ))
+            ) : (
+              <li>現在受験可能なテストは有りません</li>
+            )}
+          </ul>
+        </div>
+      </div>
       {isAdmin && (
-        <div className="flex flex-col p-2">
-          <div>管理者用</div>
-          <div className="p-1">
-            <a className={buttonClassName} href="/admin">
+        <div className="mt-5 flex w-64 flex-col">
+          <div className="rounded-t-lg bg-blue-100 p-3 text-lg font-bold">
+            管理者用
+          </div>
+          <div className="border p-2 hover:bg-orange-100">
+            <a className="block w-full text-lg" href="/admin">
               管理ページ
             </a>
           </div>

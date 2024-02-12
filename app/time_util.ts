@@ -8,7 +8,7 @@ export const toInputDateTimeLocal = (dateString: string) => {
 export const toHumanFriendly = (dateString: string) => {
   const d = luxon.DateTime.fromISO(dateString);
 
-  return d.toFormat("yyyy-MM-dd HH:mm");
+  return d.toFormat("MM月dd日 HH:mm");
 };
 
 export const toUntil = (date: Date) => {
