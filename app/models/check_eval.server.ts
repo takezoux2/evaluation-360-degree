@@ -22,6 +22,9 @@ export async function countUpEvaluattorAndEvaluatee(termId: number) {
       _count: {
         evaluateeId: true,
       },
+      where: {
+        termId,
+      },
     })
     .then(
       (list) => new Map(list.map((l) => [l.evaluateeId, l._count.evaluateeId]))
