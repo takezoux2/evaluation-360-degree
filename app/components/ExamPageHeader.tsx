@@ -11,8 +11,13 @@ export function ExamPageHader({
     <header>
       <div className="flex flex-row items-center justify-between p-1">
         <div className="basis-3/6">
-          <h2 className="px-2 text-2xl">
-            <a href={`/term/${term.id}`}>Term</a>
+          <h2 className="text-l px-2">
+            <a
+              href={`/term/${term.id}`}
+              className="rounded-md border bg-slate-300 px-2 py-1"
+            >
+              &lt;試験選択へ戻る
+            </a>
           </h2>
         </div>
         <div className="basis-2/6 p-2 text-right">{user.name}</div>

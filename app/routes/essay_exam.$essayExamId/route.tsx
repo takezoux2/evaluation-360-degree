@@ -75,13 +75,13 @@ export default function Index() {
 
   const [isChanged, setIsChanged] = useState(false);
 
-  const buttonLabel = postResult?.success === true ? "保存完了" : "提出する";
+  const buttonLabel = postResult?.success === true ? "保存完了" : "保存する";
   const submitButton =
     errors.length > 0 ? (
       <input
         type="submit"
         className="rounded-md border-black bg-gray-300 p-2"
-        value="提出する"
+        value="保存する"
         disabled={true}
       />
     ) : !isChanged ? (
@@ -95,7 +95,7 @@ export default function Index() {
       <input
         type="submit"
         className="rounded-md border-black bg-green-300 p-2"
-        value="提出する"
+        value="保存する"
         disabled={false}
       />
     );
