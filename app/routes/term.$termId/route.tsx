@@ -89,11 +89,14 @@ export default function Index() {
           >
             項目別に評価する
           </a>
+          <div className="p-1">
+            ※どちらで評価しても結果は同じです。好きなUIで評価してください。
+          </div>
         </div>
       </div>
       <div className="mt-3 flex flex-col rounded-md border">
         <div className={pHeader}>スキルテスト</div>
-        <div className="flex flex-col">{exams}</div>
+        <div className="flex flex-col p-1">{exams}</div>
       </div>
       <div className="mt-3 flex flex-col rounded-md border">
         <div className={pHeader}>記述試験</div>

@@ -45,7 +45,9 @@ export const loader = async ({ params, request }: LoaderArgs) => {
 export default function Index() {
   const { term, evaluations, user } = useLoaderData<typeof loader>();
 
-  const [selectedAskItemId, setSelectedAskItemId] = useState<number>(0);
+  const [selectedAskItemId, setSelectedAskItemId] = useState<number>(
+    term.askSections[0]?.askItems[0]?.id ?? 0
+  );
 
   const cutStr = (str: string) => {
     if (str.length > 10) {
@@ -55,7 +57,9 @@ export default function Index() {
     }
   };
 
-  const [selectedSectionId, setSelectedSectionId] = useState<number>(0);
+  const [selectedSectionId, setSelectedSectionId] = useState<number>(
+    term.askSections[0]?.id ?? 0
+  );
 
   const askItemsList = term.askSections.flatMap((s) => {
     return (
@@ -127,7 +131,7 @@ export default function Index() {
         .find((i) => i.id === askItem.id);
       return (
         <AskItemComponent
-          key={askItem.id}
+          key={e.id + "_" + askItem.id}
           label={e.evaluatee.name}
           askItem={userAskItem ?? askItem}
           answerSelectionSet={section.answerSelectionSet}
