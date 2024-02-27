@@ -81,7 +81,13 @@ export default function Index() {
         <div className={pHeader}>180度評価</div>
         <div className="flex flex-col border p-1">
           <a className={clickableItem} href={`/evaluation/${termData.term.id}`}>
-            評価開始
+            人別に評価する
+          </a>
+          <a
+            className={clickableItem}
+            href={`/evaluation/item/${termData.term.id}`}
+          >
+            項目別に評価する
           </a>
         </div>
       </div>

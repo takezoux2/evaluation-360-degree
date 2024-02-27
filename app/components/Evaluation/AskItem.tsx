@@ -17,12 +17,14 @@ type Args = {
   askItem: FullAskItem;
   answerSelectionSet: FullAnswerSelectionSet;
   evaluationId: number;
+  label?: string;
 };
 
 export const AskItemComponent = ({
   askItem,
   answerSelectionSet,
   evaluationId,
+  label,
 }: Args) => {
   const [selected, setSelected] = useState(
     askItem.answerItem
@@ -81,17 +83,19 @@ export const AskItemComponent = ({
     }
   );
 
-  const brText = askItem.askText.split("\n").map((str, index, arr) => {
-    if (index === arr.length - 1) return str;
-    else
-      return (
-        <>
-          {str}
-          <br />
-          {"\n"}
-        </>
-      );
-  });
+  const brText = (label ?? askItem.askText)
+    .split("\n")
+    .map((str, index, arr) => {
+      if (index === arr.length - 1) return str;
+      else
+        return (
+          <>
+            {str}
+            <br />
+            {"\n"}
+          </>
+        );
+    });
 
   return (
     <div>
@@ -153,7 +157,7 @@ export const AskItemComponent = ({
           </div>
         </div>
       </div>
-      <div className="flex flex-row ">{selections}</div>
+      <div className="flex flex-row">{selections}</div>
     </div>
   );
 };

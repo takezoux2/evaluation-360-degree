@@ -15,7 +15,7 @@ export const EvaluationComponent = ({
         </div>
         <div className="p-3">
           <button
-            className="rounded-lg bg-emerald-300 p-2 text-sm text-black"
+            className="rounded-lg bg-gradient-to-r from-green-500 to-red-500  p-2 text-sm text-black"
             onClick={() => {
               const selectionSetId =
                 evaluation.term.askSections[0].answerSelectionSet.id;
